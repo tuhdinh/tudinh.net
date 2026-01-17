@@ -17,8 +17,29 @@
 
     <!-- 🔐 Protect page -->
     <script type="module">
-        import { protectPage } from './assets/js/auth.js';
-        protectPage();
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        // --- Your Firebase config ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyBXqrLMnNtRnQz7rNqf5eKf_oPd80zcuPI",
+            authDomain: "tudinhnet.firebaseapp.com",
+            projectId: "tudinhnet",
+            storageBucket: "tudinhnet.firebasestorage.app",
+            messagingSenderId: "563689283361",
+            appId: "1:563689283361:web:d8e0f48889bcc0f68a6860",
+            measurementId: "G-56RGXDFED8"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Redirect to login if user is not authenticated
+        onAuthStateChanged(auth, user => {
+            if (!user) {
+                window.location.href = "login.html";
+            }
+        });
     </script>
 
     <nav class="navbar navbar-light navbar-expand-md sticky-top navbar-shrink py-3" id="mainNav">

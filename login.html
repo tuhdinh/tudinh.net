@@ -5,7 +5,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
 <title>TuDinh.Net Login</title>
-
 <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&display=swap">
 <link rel="stylesheet" href="assets/css/externalnpsthread.css">
@@ -17,50 +16,27 @@
 
 <body>
 
-<nav class="navbar navbar-light navbar-expand-md sticky-top navbar-shrink py-3" id="mainNav">
-    <div class="container">
-        <a class="navbar-brand d-flex align-items-center">
-            <span class="bs-icon-sm bs-icon-circle bs-icon-primary shadow d-flex justify-content-center align-items-center me-2 bs-icon">
-                <!-- icon unchanged -->
-            </span>
-            <span>Tu Dinh</span>
-        </a>
-    </div>
-</nav>
-
-<div class="container">
-    <div class="row row-login">
-        <div class="col-10 col-sm-6 col-md-4 offset-1 offset-sm-3 offset-md-4">
-            <h1 class="text-center">Web Application</h1>
-
-            <div class="card-body">
-                <!-- 🔐 PASSWORDLESS EMAIL LINK LOGIN FORM -->
-                <form id="loginForm">
-
-                    <div class="form-group mb-3">
-                        <input class="form-control" type="email" id="email" placeholder="you@example.com" required>
-                    </div>
-
-                    <button class="btn btn-success d-block w-100" type="submit">
-                        SEND LOGIN LINK
-                    </button>
-
-                    <p class="text-danger mt-3" id="error"></p>
-                    <p class="text-success mt-3" id="message"></p>
-
-                </form>
-            </div>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-4">
+            <h2 class="text-center mb-4">Login with Email Link</h2>
+            <form id="loginForm">
+                <div class="mb-3">
+                    <input type="email" id="email" class="form-control" placeholder="you@example.com" required>
+                </div>
+                <button type="submit" id="loginBtn" class="btn btn-success w-100">Send Login Link</button>
+            </form>
+            <p class="text-success mt-3" id="message"></p>
+            <p class="text-danger mt-3" id="error"></p>
         </div>
     </div>
 </div>
 
-<!-- 🔥 FIREBASE AUTH -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink } 
-from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getAuth, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-// --- Your Firebase config (updated) ---
+// --- Firebase config ---
 const firebaseConfig = {
   apiKey: "AIzaSyBXqrLMnNtRnQz7rNqf5eKf_oPd80zcuPI",
   authDomain: "tudinhnet.firebaseapp.com",
@@ -74,34 +50,41 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// --- PASSWORDLESS LOGIN ---
 const loginForm = document.getElementById("loginForm");
-const errorEl = document.getElementById("error");
+const loginBtn = document.getElementById("loginBtn");
 const messageEl = document.getElementById("message");
+const errorEl = document.getElementById("error");
 
+// --- Handle form submit ---
 loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     errorEl.innerText = "";
     messageEl.innerText = "";
+    loginBtn.disabled = true;
 
     const email = document.getElementById("email").value;
 
     try {
-	const actionCodeSettings = {
-    url: "https://tudinh.net/index.html", // must be on Firebase allowlist
-    handleCodeInApp: true
-};
+        const actionCodeSettings = {
+            url: window.location.origin + "/index.html", // redirect after clicking email link
+            handleCodeInApp: true
+        };
+        await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+        window.localStorage.setItem('emailForSignIn', email);
+        messageEl.innerText = "Check your email for the login link!";
+    } catch (err) {
+        errorEl.innerText = err.message;
+        loginBtn.disabled = false; // re-enable on error
+    }
+});
 
-await sendSignInLinkToEmail(auth, email, actionCodeSettings);
-window.localStorage.setItem('emailForSignIn', email);
-messageEl.innerText = "Check your email for the login link!";
-loginForm.querySelector("button").disabled = true;
-
-// Complete login
+// --- Complete login if coming from email link ---
 if (isSignInWithEmailLink(auth, window.location.href)) {
     (async () => {
         let email = window.localStorage.getItem('emailForSignIn');
-        if (!email) email = prompt("Please enter your email for verification");
+        if (!email) {
+            email = prompt("Please enter your email for verification");
+        }
         try {
             await signInWithEmailLink(auth, email, window.location.href);
             window.localStorage.removeItem('emailForSignIn');
@@ -111,7 +94,6 @@ if (isSignInWithEmailLink(auth, window.location.href)) {
         }
     })();
 }
-
 </script>
 
 <script src="assets/bootstrap/js/bootstrap.min.js"></script>
