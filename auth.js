@@ -29,11 +29,12 @@ const auth = getAuth(app);
  * @param {string} email
  */
 export async function login(email) {
-  const actionCodeSettings = {
-    url: window.location.origin + '/index.html', // redirect after login
-    handleCodeInApp: true
-  };
-  
+
+const actionCodeSettings = {
+  url: 'https://tudinh.net/index.html', // redirect after clicking email
+  handleCodeInApp: true
+};
+
   await sendSignInLinkToEmail(auth, email, actionCodeSettings);
   window.localStorage.setItem('emailForSignIn', email);
   alert("Check your email for the login link!");
