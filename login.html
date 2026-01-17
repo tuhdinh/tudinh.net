@@ -87,36 +87,31 @@ loginForm.addEventListener("submit", async (e) => {
     const email = document.getElementById("email").value;
 
     try {
-        const actionCodeSettings = {
-            url: window.location.origin + "/home.html", // redirect after clicking email
-            handleCodeInApp: true
-        };
+	const actionCodeSettings = {
+    url: "https://tudinh.net/index.html", // must be on Firebase allowlist
+    handleCodeInApp: true
+};
 
-        await sendSignInLinkToEmail(auth, email, actionCodeSettings);
-        window.localStorage.setItem('emailForSignIn', email);
-        messageEl.innerText = "Check your email for the login link!";
-        loginForm.querySelector("button").disabled = true;
-    } catch (err) {
-        errorEl.innerText = err.message;
-    }
-});
+await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+window.localStorage.setItem('emailForSignIn', email);
+messageEl.innerText = "Check your email for the login link!";
+loginForm.querySelector("button").disabled = true;
 
-// --- COMPLETE LOGIN AFTER CLICKING EMAIL LINK ---
+// Complete login
 if (isSignInWithEmailLink(auth, window.location.href)) {
     (async () => {
         let email = window.localStorage.getItem('emailForSignIn');
-        if (!email) {
-            email = prompt("Please enter your email for verification");
-        }
+        if (!email) email = prompt("Please enter your email for verification");
         try {
             await signInWithEmailLink(auth, email, window.location.href);
             window.localStorage.removeItem('emailForSignIn');
-            window.location.href = "index.html";
+            window.location.href = "index.html"; // redirect after login
         } catch (err) {
             errorEl.innerText = err.message;
         }
     })();
 }
+
 </script>
 
 <script src="assets/bootstrap/js/bootstrap.min.js"></script>
