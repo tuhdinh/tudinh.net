@@ -42,21 +42,41 @@ const publicPages = [
 
 const currentPage = location.pathname.split("/").pop() || "index.html";
 
+// Hide content until auth resolves
+document.body.style.display = "none";
+
 onAuthStateChanged(auth, (user) => {
-  if (!user && protectedPages.includes(currentPage)) {
-    // Not logged in → go to login
+  const isProtected = protectedPages.includes(currentPage);
+  const isPublic = publicPages.includes(currentPage);
+
+  if (!user && isProtected) {
+    // Not logged in → redirect to login
     window.location.replace("login.html");
     return;
   }
 
   if (user && currentPage === "login.html") {
-    // Logged in user visiting login page → send home
+    // Logged in user visiting login page → redirect home
     window.location.replace("index.html");
     return;
   }
 
-  // Auth decided → show page
+  // Show page once auth is resolved
   document.body.style.display = "block";
+
+  // Optional: Update navbar button dynamically
+  const navButton = document.querySelector("#navcol-1 .btn");
+  if (navButton) {
+    if (user) {
+      navButton.textContent = "Logout";
+      navButton.className = "btn btn-outline-danger shadow";
+      navButton.onclick = logout;
+    } else {
+      navButton.textContent = "Login";
+      navButton.className = "btn btn-primary shadow";
+      navButton.onclick = () => window.location.replace("login.html");
+    }
+  }
 });
 
 // ---- LOGOUT ----
@@ -64,3 +84,6 @@ export async function logout() {
   await signOut(auth);
   window.location.replace("login.html");
 }
+
+// Make logout globally available (for inline onclick)
+window.logout = logout;

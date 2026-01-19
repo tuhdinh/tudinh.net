@@ -1,29 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
 
-    <!-- 🔒 Prevent content flash before auth check -->
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>TuDinh.Net</title>
+
+    <!-- 🔒 Prevent flash before auth check -->
     <style>
         body {
             display: none;
         }
     </style>
 
-    <!-- 🔐 Auth guard (must load first) -->
+    <!-- 🔐 Auth guard -->
     <script type="module" src="auth.js"></script>
-
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>TuDinh.Net 7-21-25</title>
 
     <!-- Styles -->
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&display=swap">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&display=swap">
     <link rel="stylesheet" href="assets/css/externalnpsthread.css">
     <link rel="stylesheet" href="assets/css/Features-Image-icons.css">
     <link rel="stylesheet" href="assets/css/Features-Image-images.css">
     <link rel="stylesheet" href="assets/css/Wave-Animation-Circle-and-Square.css">
-
 </head>
 
 <body style="background-position: 0 -60px;">
@@ -32,10 +32,13 @@
     <nav class="navbar navbar-light navbar-expand-md sticky-top navbar-shrink py-3" id="mainNav">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="index.html">
-                <span class="bs-icon-sm bs-icon-circle bs-icon-primary shadow d-flex justify-content-center align-items-center me-2 bs-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-bezier">
-                        <path fill-rule="evenodd" d="M0 10.5A1.5 1.5 0 0 1 1.5 9h1A1.5 1.5 0 0 1 4 10.5v1A1.5 1.5 0 0 1 2.5 13h-1A1.5 1.5 0 0 1 0 11.5v-1z"/>
-                        <path d="M6 4.5H1.866a1 1 0 1 0 0 1h2.668A6.517 6.517 0 0 0 1.814 9H2.5"/>
+                <span
+                    class="bs-icon-sm bs-icon-circle bs-icon-primary shadow d-flex justify-content-center align-items-center me-2 bs-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor"
+                        viewBox="0 0 16 16" class="bi bi-bezier">
+                        <path fill-rule="evenodd"
+                            d="M0 10.5A1.5 1.5 0 0 1 1.5 9h1A1.5 1.5 0 0 1 4 10.5v1A1.5 1.5 0 0 1 2.5 13h-1A1.5 1.5 0 0 1 0 11.5v-1z" />
+                        <path d="M6 4.5H1.866a1 1 0 1 0 0 1h2.668A6.517 6.517 0 0 0 1.814 9H2.5" />
                     </svg>
                 </span>
                 <span>Tu Dinh</span>
@@ -54,9 +57,8 @@
                     <li class="nav-item"><a class="nav-link" href="contacts.html">Contacts</a></li>
                 </ul>
 
-                <button class="btn btn-outline-danger shadow" onclick="logout()">
-                    Logout
-                </button>
+                <!-- Logout -->
+                <button class="btn btn-outline-danger shadow" onclick="logout()">Logout</button>
             </div>
         </div>
     </nav>
@@ -91,6 +93,6 @@
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="assets/js/bold-and-bright.js"></script>
-
 </body>
+
 </html>
