@@ -6,47 +6,61 @@ import {
   signOut
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+// --- Firebase config ---
 const firebaseConfig = {
   apiKey: "AIzaSyBXqrLMnNtRnQz7rNqf5eKf_oPd80zcuPI",
   authDomain: "tudinhnet.firebaseapp.com",
   projectId: "tudinhnet",
+  storageBucket: "tudinhnet.firebasestorage.app",
+  messagingSenderId: "563689283361",
+  appId: "1:563689283361:web:d8e0f48889bcc0f68a6860",
+  measurementId: "G-56RGXDFED8"
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// 🔓 Pages that do NOT require login
-const publicPages = [
-  "login.html",
-  "resume.html",
+// ---- CONFIG ----
 
+// Pages that REQUIRE login
+const protectedPages = [
+  "index.html",
+  "projects.html",
+  "internal_nps.html",
+  "external_nps.html",
+  "contacts.html"
 ];
 
-const currentPage =
-  location.pathname.split("/").pop() || "index.html";
+// Pages that should be accessible without login
+const publicPages = [
+  "login.html",
+  "noaccess.html"
+];
 
-// Hide body by default
-document.documentElement.style.visibility = "hidden";
+// ---- AUTH GUARD ----
+
+const currentPage = location.pathname.split("/").pop() || "index.html";
 
 onAuthStateChanged(auth, (user) => {
-  const isPublic = publicPages.includes(currentPage);
-
-  if (!user && !isPublic) {
+  if (!user && protectedPages.includes(currentPage)) {
+    // Not logged in → go to login
     window.location.replace("login.html");
     return;
   }
 
   if (user && currentPage === "login.html") {
+    // Logged in user visiting login page → send home
     window.location.replace("index.html");
     return;
   }
 
-  // Auth resolved → show page
-  document.documentElement.style.visibility = "visible";
+  // Auth decided → show page
+  document.body.style.display = "block";
 });
 
-// Logout available everywhere
-window.logout = async () => {
+// ---- LOGOUT ----
+export async function logout() {
   await signOut(auth);
   window.location.replace("login.html");
-};
+}
