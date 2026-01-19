@@ -5,13 +5,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
 <title>TuDinh.Net Login</title>
+
 <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&display=swap">
-<link rel="stylesheet" href="assets/css/externalnpsthread.css">
-<link rel="stylesheet" href="assets/css/Features-Image-icons.css">
-<link rel="stylesheet" href="assets/css/Features-Image-images.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,600,700,800&display=swap">
 <link rel="stylesheet" href="assets/css/Login-Center.css">
-<link rel="stylesheet" href="assets/css/Wave-Animation-Circle-and-Square.css">
 </head>
 
 <body>
@@ -19,22 +16,38 @@
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-4">
-            <h2 class="text-center mb-4">Login with Email Link</h2>
+
+            <h2 class="text-center mb-4">Login</h2>
+
             <form id="loginForm">
                 <div class="mb-3">
-                    <input type="email" id="email" class="form-control" placeholder="you@example.com" required>
+                    <input type="email" id="email" class="form-control"
+                           placeholder="you@example.com" required>
                 </div>
-                <button type="submit" id="loginBtn" class="btn btn-success w-100">Send Login Link</button>
+
+                <div class="mb-3">
+                    <input type="password" id="password" class="form-control"
+                           placeholder="Password" required>
+                </div>
+
+                <button type="submit" class="btn btn-success w-100" id="loginBtn">
+                    Login
+                </button>
             </form>
+
             <p class="text-success mt-3" id="message"></p>
             <p class="text-danger mt-3" id="error"></p>
+
         </div>
     </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { 
+    getAuth, 
+    signInWithEmailAndPassword 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 // --- Firebase config ---
 const firebaseConfig = {
@@ -55,7 +68,6 @@ const loginBtn = document.getElementById("loginBtn");
 const messageEl = document.getElementById("message");
 const errorEl = document.getElementById("error");
 
-// --- Handle form submit ---
 loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     errorEl.innerText = "";
@@ -63,37 +75,17 @@ loginForm.addEventListener("submit", async (e) => {
     loginBtn.disabled = true;
 
     const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
 
     try {
-        const actionCodeSettings = {
-            url: window.location.origin + "/index.html", // redirect after clicking email link
-            handleCodeInApp: true
-        };
-        await sendSignInLinkToEmail(auth, email, actionCodeSettings);
-        window.localStorage.setItem('emailForSignIn', email);
-        messageEl.innerText = "Check your email for the login link!";
+        await signInWithEmailAndPassword(auth, email, password);
+        messageEl.innerText = "Login successful!";
+        window.location.href = "index.html"; // redirect after login
     } catch (err) {
         errorEl.innerText = err.message;
-        loginBtn.disabled = false; // re-enable on error
+        loginBtn.disabled = false;
     }
 });
-
-// --- Complete login if coming from email link ---
-if (isSignInWithEmailLink(auth, window.location.href)) {
-    (async () => {
-        let email = window.localStorage.getItem('emailForSignIn');
-        if (!email) {
-            email = prompt("Please enter your email for verification");
-        }
-        try {
-            await signInWithEmailLink(auth, email, window.location.href);
-            window.localStorage.removeItem('emailForSignIn');
-            window.location.href = "index.html"; // redirect after login
-        } catch (err) {
-            errorEl.innerText = err.message;
-        }
-    })();
-}
 </script>
 
 <script src="assets/bootstrap/js/bootstrap.min.js"></script>

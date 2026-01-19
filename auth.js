@@ -1,15 +1,12 @@
 // auth.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { 
-  getAuth, 
-  sendSignInLinkToEmail, 
-  isSignInWithEmailLink, 
-  signInWithEmailLink, 
-  signOut,
-  onAuthStateChanged
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-// --- Your Firebase config ---
+// --- Firebase config ---
 const firebaseConfig = {
   apiKey: "AIzaSyBXqrLMnNtRnQz7rNqf5eKf_oPd80zcuPI",
   authDomain: "tudinhnet.firebaseapp.com",
@@ -24,31 +21,46 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-/**
- * Send Email Link login
- * @param {string} email
- */
-export async function login(email) {
+// ---- CONFIG ----
 
-const actionCodeSettings = {
-  url: 'https://tudinh.net/index.html', // redirect after clicking email
-  handleCodeInApp: true
-};
+// Pages that REQUIRE login
+const protectedPages = [
+  "index.html",
+  "projects.html",
+  "internal_nps.html",
+  "external_nps.html",
+  "contacts.html"
+];
 
-  await sendSignInLinkToEmail(auth, email, actionCodeSettings);
-  window.localStorage.setItem('emailForSignIn', email);
-  alert("Check your email for the login link!");
+// Pages that should be accessible without login
+const publicPages = [
+  "login.html",
+  "noaccess.html"
+];
+
+// ---- AUTH GUARD ----
+
+const currentPage = location.pathname.split("/").pop() || "index.html";
+
+onAuthStateChanged(auth, (user) => {
+  if (!user && protectedPages.includes(currentPage)) {
+    // Not logged in → go to login
+    window.location.replace("login.html");
+    return;
+  }
+
+  if (user && currentPage === "login.html") {
+    // Logged in user visiting login page → send home
+    window.location.replace("index.html");
+    return;
+  }
+
+  // Auth decided → show page
+  document.body.style.display = "block";
+});
+
+// ---- LOGOUT ----
+export async function logout() {
+  await signOut(auth);
+  window.location.replace("login.html");
 }
-
-/**
- * Complete login if user clicked Email Link
- */
-export async function completeLogin() {
-  if (isSignInWithEmailLink(auth, window.location.href)) {
-    let email = window.localStorage.getItem('emailForSignIn');
-    if (!email) {
-      email = prompt("Please enter your email for verification");
-    }
-    try {
-      await signInWithEmailLink(auth, email, window.location.href);
-      win
