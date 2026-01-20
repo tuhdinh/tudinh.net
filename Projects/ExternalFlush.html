@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>External Flush</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="../assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,600,700,800&display=swap">
+
+    <!-- Existing site styles -->
+    <link rel="stylesheet" href="../assets/css/externalnpsthread.css">
+    <link rel="stylesheet" href="../assets/css/Features-Image-icons.css">
+    <link rel="stylesheet" href="../assets/css/Features-Image-images.css">
+    <link rel="stylesheet" href="../assets/css/Wave-Animation-Circle-and-Square.css">
+
+    <!-- CUSTOM TOOL STYLES (SAFE) -->
+    <style>
+        body {
+            background: #f4f4f9;
+            color: #333;
+        }
+
+        /* Remove number arrows */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        .panel {
+            padding: 12px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+            max-height: 30vh;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+
+        #od-panel { background: #e3f2fd; }
+        #thread-panel { background: #fff3e0; }
+        #machining-panel { background: #e8f5e9; }
+
+        .panel h2 {
+            font-size: 1.05rem;
+            padding: 6px 8px;
+            border-radius: 6px;
+            color: white;
+        }
+
+        #od-panel h2 { background: #1e88e5; }
+        #thread-panel h2 { background: #fb8c00; }
+        #machining-panel h2 { background: #43a047; }
+
+        label {
+            font-weight: bold;
+            margin-top: 6px;
+            display: block;
+        }
+
+        input {
+            width: 100%;
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .image-panel img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.2);
+            cursor: grab;
+            touch-action: none;
+            transform-origin: center;
+        }
+
+        .generate-container button {
+            font-size: 1.05rem;
+            font-weight: bold;
+        }
+
+        textarea {
+            width: 100%;
+            height: 450px;
+            resize: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-light navbar-expand-md sticky-top navbar-shrink py-3" id="mainNav">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="../index.html">
+            <span class="container"><a class="navbar-brand d-flex align-items-center" href="../index.html"><span class="bs-icon-sm bs-icon-circle bs-icon-primary shadow d-flex justify-content-center align-items-center me-2 bs-icon"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-bezier">
+                        <path fill-rule="evenodd" d="M0 10.5A1.5 1.5 0 0 1 1.5 9h1A1.5 1.5 0 0 1 4 10.5v1A1.5 1.5 0 0 1 2.5 13h-1A1.5 1.5 0 0 1 0 11.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm10.5.5A1.5 1.5 0 0 1 13.5 9h1a1.5 1.5 0 0 1 1.5 1.5v1a1.5 1.5 0 0 1-1.5 1.5h-1a1.5 1.5 0 0 1-1.5-1.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zM6 4.5A1.5 1.5 0 0 1 7.5 3h1A1.5 1.5 0 0 1 10 4.5v1A1.5 1.5 0 0 1 8.5 7h-1A1.5 1.5 0 0 1 6 5.5v-1zM7.5 4a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"></path>
+                        <path d="M6 4.5H1.866a1 1 0 1 0 0 1h2.668A6.517 6.517 0 0 0 1.814 9H2.5c.123 0 .244.015.358.043a5.517 5.517 0 0 1 3.185-3.185A1.503 1.503 0 0 1 6 5.5v-1zm3.957 1.358A1.5 1.5 0 0 0 10 5.5v-1h4.134a1 1 0 1 1 0 1h-2.668a6.517 6.517 0 0 1 2.72 3.5H13.5c-.123 0-.243.015-.358.043a5.517 5.517 0 0 0-3.185-3.185z"></path>
+                    </svg></span><span>Tu Dinh</span></a><button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+
+        </a>
+
+        <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navcol-1">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navcol-1">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="../learn.html">Learn</a></li>
+                <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+                <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+                <li class="nav-item"><a class="nav-link" href="../contacts.html">Contacts</a></li>
+            </ul>
+            <button class="btn btn-danger shadow" id="logoutBtn">Log Out</button>
+        </div>
+    </div>
+</nav>
+
+<!-- TITLE -->
+<section class="py-4 text-center">
+    <h2 class="fw-bold">External Flush</h2>
+</section>
+
+<!-- MAIN TOOL -->
+<div class="container-fluid px-4">
+    <div class="row">
+
+        <!-- LEFT CONTROLS -->
+        <div class="col-md-4">
+
+            <div class="panel" id="od-panel">
+                <h2>Profile</h2>
+                <label>Run Out Dia<input id="RunOutDia" type="number" value="5.75" step="any"></label>
+                <label>Run Out Angle<input id="RunOutAngle" type="number" value="45"></label>
+                <label>OD<input id="OD" type="number" value="5.5"></label>
+                <label>ID<input id="ID" type="number" value="4.6"></label>
+                <label>ID Length<input id="IDLength" type="number" value="2.5"></label>
+                <label>Thread Diameter<input id="ThreadDiameter" type="number" value="5.2811"></label>
+                <label>Thread Diameter Length<input id="ThreadDiameterLength" type="number" value="2.2771"></label>
+                <label>Bevel Angle<input id="BevelAngle" type="number" value="45"></label>
+                <label>Bevel Dia<input id="BevelDia" type="number" value="4.89"></label>
+                <label>ID Chamfer Length<input id="IDChamferLength" type="number" value=".01"></label>
+                <label>ID Chamfer Angle<input id="IDChamferAngle" type="number" value="45"></label>
+            </div>
+
+            <div class="panel" id="thread-panel">
+                <h2>Thread Profile</h2>
+                <label>Load Taper<input id="LoadTaper" type="number" value=".0972"></label>
+                <label>Mid Taper<input id="MidTaper" type="number" value=".0986"></label>
+                <label>Stab Taper<input id="StabTaper" type="number" value=".1"></label>
+                <label>Load Lead<input id="LoadLead" type="number" value=".36"></label>
+                <label>Mid Lead<input id="MidLead" type="number" value=".355"></label>
+                <label>Stab Lead<input id="StabLead" type="number" value=".35"></label>
+                <label>Thread Height<input id="ThreadHeight" type="number" value=".075"></label>
+                <label>Thread Angle<input id="ThreadAngle" type="number" value="5"></label>
+                <label>Insert Ref Dia<input id="InsertRefDia" type="number" value="5.5306"></label>
+                <label>Insert Ref Length<input id="InsertRefLength" type="number" value="5.5163"></label>
+            </div>
+
+            <div class="panel" id="machining-panel">
+                <h2>Machining</h2>
+                <label>OD Stock<input id="ODStock" type="number" value="0.01"></label>
+                <label>Tool Nose Radius<input id="ToolNoseRadius" type="number" value=".046875"></label>
+                <label>Feed<input id="Feed" type="number" value="0.012"></label>
+                <label>Depth of Cut<input id="DepthofCut" type="number" value="0.012"></label>
+                <label>Thread Length Adjustment<input id="ThreadLengthAdjustment" type="number" value="0"></label>
+                <label>Run In Extent<input id="RunInExtent" type="number" value="0"></label>
+                <label>Load Flank X Adjustment<input id="LoadFlankXAdjustment" type="number" value="-.002"></label>
+                <label>Mid Flank X Adjustment<input id="MidFlankXAdjustment" type="number" value="0"></label>
+                <label>Stab Flank X Adjustment<input id="StabFlankXAdjustment" type="number" value="0"></label>
+            </div>
+
+        </div>
+
+        <!-- RIGHT IMAGE -->
+        <div class="col-md-8 text-center image-panel">
+            <img src="EXTERNALFLUSH.PNG" alt="External Flush Thread">
+        </div>
+
+    </div>
+</div>
+
+<!-- OUTPUT -->
+<div class="container my-4 generate-container">
+    <button class="btn btn-primary mb-3 w-100" onclick="generateGCode()">Generate Program</button>
+    <textarea id="output" class="form-control" placeholder="G-code will appear here..."></textarea>
+</div>
+
+<!-- 🔴 YOUR FULL JS (UNCHANGED) -->
+<script>
+/* Utility helpers: formatting to match VB.NET style */
+function readFloat(id, fallback = 0) {
+    const el = document.getElementById(id);
+    if (!el) return fallback;
+    const v = parseFloat(el.value);
+    return isNaN(v) ? fallback : v;
+}
+
+function trimNumberFixed(nFixedString) {
+    // Remove trailing zeros and trailing dot if any
+    if (typeof nFixedString !== 'string') nFixedString = String(nFixedString);
+    if (nFixedString.indexOf('.') === -1) return nFixedString;
+    // Trim trailing zeros
+    nFixedString = nFixedString.replace(/\.?0+$/, '');
+    return nFixedString;
+}
+
+function formatNum(n, decimals) {
+    // return trimmed string similar to VB's natural print:
+    // - if integer -> "3"
+    // - if ends with .5 -> "2.5"
+    // - otherwise up to decimals
+    const fixed = Number(n).toFixed(decimals);
+    return trimNumberFixed(fixed);
+}
+
+function formatCompare6(n) {
+    // for intercept comparison use 6 decimals (rounded)
+    return Number(n).toFixed(6);
+}
+
+function generateGCode() {
+    // read inputs
+    const OD = readFloat('OD');
+    const ODCR = OD + 0.75;
+
+    const ID = readFloat('ID');
+    const IDCR = ID - 0.75;
+
+    const IDCHAMFERANGLE_input = readFloat('IDChamferAngle');
+    const IDCHAMFERLENGTH = readFloat('IDChamferLength');
+
+    const IDLENGTH = readFloat('IDLength');
+
+    const THREADDIAMETER = readFloat('ThreadDiameter');
+    const THREADDIAMETERLENGTH = readFloat('ThreadDiameterLength');
+
+    const THREADLENGTH = readFloat('InsertRefLength');
+
+    let BEVELANGLE = readFloat('BevelAngle');
+    const BEVELOD = readFloat('BevelDia');
+
+    let THREADANGLE = readFloat('ThreadAngle');
+
+    const THREADHEIGHT = readFloat('ThreadHeight');
+
+    const LOADLEAD = readFloat('LoadLead');
+    const LOADTAPER = readFloat('LoadTaper');
+
+    const MIDLEAD = readFloat('MidLead');
+    const MIDTAPER = readFloat('MidTaper');
+
+    const STABLEAD = readFloat('StabLead');
+    const STABTAPER = readFloat('StabTaper');
+
+    const THREADLENGTHADJ = readFloat('ThreadLengthAdjustment');
+
+    const DOC = readFloat('DepthofCut');
+
+    const ODSTOCK = readFloat('ODStock');
+
+    const TNR = readFloat('ToolNoseRadius');
+
+    const FEED = readFloat('Feed');
+
+    const INSERTREFDIA = readFloat('InsertRefDia');
+    const INSERTREFLENGTH = readFloat('InsertRefLength');
+
+    const RUNOUTDIA = readFloat('RunOutDia');
+    let RUNOUTANGLE = readFloat('RunOutAngle');
+
+    const LOADFLANKXADJ = readFloat('LoadFlankXAdjustment');
+    const MIDFLANKXADJ = readFloat('MidFlankXAdjustment');
+    const STABFLANKXADJ = readFloat('StabFlankXAdjustment');
+
+    let RUNINEXTENT = readFloat('RunInExtent');
+    RUNINEXTENT = Math.round(RUNINEXTENT * 10) / 10;
+
+    // validations
+    if (!(BEVELANGLE > 0 && BEVELANGLE < 90)) {
+        alert("ANGLES MUST BE GREATER 0 AND LESS THAN 90");
+        return;
+    }
+
+    // Convert bevel angle to slope
+    BEVELANGLE = Math.tan(BEVELANGLE * (Math.PI / 180));
+    BEVELANGLE = BEVELANGLE + 0.005;
+
+    // THREAD DIAMETER AT Z0
+    const THREADDIAMETERATZ0 = THREADDIAMETER - (STABTAPER * THREADDIAMETERLENGTH);
+
+    // Find intercept loop - VB used incremental z + rounding checks to 6 decimals
+    let ZINTERCEPT = 0;
+    let XINTERCEPT1 = 0;
+    let XINTERCEPT2 = 0;
+    let iter = 0;
+    const MAX_ITER = 2000000;
+
+    while (true) {
+        ZINTERCEPT += 0.0001;
+        XINTERCEPT1 = ((BEVELANGLE * 2) * ZINTERCEPT) + BEVELOD;
+        XINTERCEPT2 = (STABTAPER * ZINTERCEPT) + THREADDIAMETERATZ0;
+
+        const XINT1 = Number(formatCompare6(XINTERCEPT1));
+        const XINT2 = Number(formatCompare6(XINTERCEPT2));
+
+        if (XINTERCEPT1 > OD + 0.75) { // ODCR
+            alert("CAN NOT FIND THE INTERCEPT");
+            return;
+        }
+
+        if ((XINT2 - XINT1) <= 0.0001) {
+            // stop when VB condition met
+            break;
+        }
+
+        iter++;
+        if (iter > MAX_ITER) {
+            alert("INTERCEPT SEARCH FAILED (max iterations)");
+            return;
+        }
+    }
+
+    // OD TURN - TOOL NOSE RADIUS
+    let XINT1 = Number(XINTERCEPT1.toFixed(4));
+
+    let XTNR = (BEVELANGLE * TNR);
+    XTNR = TNR - XTNR;
+    const ZTNR = XTNR / BEVELANGLE;
+
+    const XWITHSTOCINTERCEPT = XINT1 + ODSTOCK;
+
+    let ZWITHSTOCINTERCEPT = ODSTOCK / (BEVELANGLE * 2);
+    ZWITHSTOCINTERCEPT = ZWITHSTOCINTERCEPT + ZINTERCEPT + ZTNR;
+
+    const ZWITHSTOCK = Number(ZWITHSTOCINTERCEPT.toFixed(4));
+
+    const XSTARTBEVEL1 = XWITHSTOCINTERCEPT - ((ZWITHSTOCINTERCEPT + 0.1) * (BEVELANGLE * 2));
+    const XSTARTBEVEL = Number(XSTARTBEVEL1.toFixed(4));
+
+    const XENDWITHSTOCK1 = XWITHSTOCINTERCEPT + ((THREADLENGTH - ZWITHSTOCK) * STABTAPER);
+    const XENDWITHSTOCK = Number(XENDWITHSTOCK1.toFixed(4));
+
+    // ID TURN - TOOL NOSE RADIUS
+    let IDCHAMFERANGLE = (IDCHAMFERANGLE_input / 2);
+    IDCHAMFERANGLE = Math.tan(IDCHAMFERANGLE * (Math.PI / 180));
+
+    const IDXCOMP = 2 * (TNR - (TNR * IDCHAMFERANGLE));
+    const IDZCOMP = TNR - (TNR * IDCHAMFERANGLE);
+
+    let IDXSTART = ID + IDXCOMP;
+    IDXSTART = Number(IDXSTART.toFixed(4));
+
+    // Reset IDCHAMFERANGLE same as VB
+    IDCHAMFERANGLE = Math.tan(IDCHAMFERANGLE_input * (Math.PI / 180));
+    let IDZEND = IDZCOMP + (IDCHAMFERLENGTH * IDCHAMFERANGLE);
+    IDZEND = Number(IDZEND.toFixed(4));
+
+    // THREADING calculations
+    let THREADPASSES = Math.round(2 * THREADHEIGHT / DOC);
+    const THREADPASSESTEST = 2 * THREADHEIGHT / DOC;
+    if (THREADPASSES < THREADPASSESTEST) THREADPASSES = THREADPASSES + 1;
+
+    // START POINT CALCULATION for leads
+    let TOTALLEAD = 0;
+    let TOTALLEADCHECK = 0;
+    while (true) {
+        TOTALLEAD = TOTALLEAD + 1;
+        TOTALLEADCHECK = TOTALLEAD * LOADLEAD;
+        if (TOTALLEADCHECK < INSERTREFLENGTH) continue;
+        break;
+    }
+    TOTALLEAD = TOTALLEAD + 1;
+    TOTALLEAD = TOTALLEAD + RUNINEXTENT;
+
+    const THREADFINALX = INSERTREFDIA - THREADHEIGHT;
+    let ENDX = THREADFINALX + (DOC * (THREADPASSES - 1));
+    let ENDZ = THREADLENGTH;
+
+    // FLANK angle calculation (VB style)
+    let FLANKANGLE = (Math.tan(THREADANGLE * (Math.PI / 180)) / 2) * DOC;
+    FLANKANGLE = Number(FLANKANGLE.toFixed(4));
+
+    const FINALZCOMP = ((THREADPASSES - 1) * FLANKANGLE) / 2;
+
+    let LOADSTARTZ = (TOTALLEAD * LOADLEAD) - INSERTREFLENGTH - THREADLENGTHADJ;
+    LOADSTARTZ = LOADSTARTZ - (FINALZCOMP * 3); // compensate
+    let LOADSTARTX = ENDX - (LOADTAPER * (TOTALLEAD * LOADLEAD)) + (THREADLENGTHADJ * LOADTAPER);
+    LOADSTARTX = Number(LOADSTARTX.toFixed(4));
+    let LOADENDZ = ENDZ + THREADLENGTHADJ;
+    LOADENDZ = LOADENDZ + (FINALZCOMP * 3);
+    let LOADENDX = ENDX + (THREADLENGTHADJ * LOADTAPER);
+
+    let MIDSTARTZ = (TOTALLEAD * MIDLEAD) - INSERTREFLENGTH - THREADLENGTHADJ;
+    MIDSTARTZ = MIDSTARTZ - FINALZCOMP;
+    let MIDSTARTX = ENDX - (MIDTAPER * (TOTALLEAD * MIDLEAD)) + (THREADLENGTHADJ * MIDTAPER);
+    MIDSTARTX = Number(MIDSTARTX.toFixed(4));
+    let MIDENDZ = ENDZ + THREADLENGTHADJ;
+    MIDENDZ = MIDENDZ + FINALZCOMP;
+    let MIDENDX = ENDX + (THREADLENGTHADJ * MIDTAPER);
+
+    let THREADWIDTHADJ = LOADLEAD / (LOADLEAD - STABLEAD);
+
+    let STABSTARTZ = (TOTALLEAD * STABLEAD) - INSERTREFLENGTH + (THREADLENGTHADJ / THREADWIDTHADJ) - THREADLENGTHADJ;
+    STABSTARTZ = STABSTARTZ + FINALZCOMP;
+    let STABSTARTX = ENDX - (STABTAPER * (TOTALLEAD * STABLEAD)) + (THREADLENGTHADJ * STABTAPER);
+    STABSTARTX = Number(STABSTARTX.toFixed(4));
+
+    let STABENDZ = ENDZ + THREADLENGTHADJ - (THREADLENGTHADJ / THREADWIDTHADJ);
+    STABENDZ = STABENDZ - FINALZCOMP;
+    let STABENDX = ENDX + ((THREADLENGTHADJ + (-THREADLENGTHADJ / THREADWIDTHADJ)) * STABTAPER);
+
+    // RUN OUT angle
+    RUNOUTANGLE = 90 - RUNOUTANGLE;
+    RUNOUTANGLE = Math.tan(RUNOUTANGLE * (Math.PI / 180));
+
+    // Round up posting X/Z where VB expects 4 decimals
+    LOADENDX = Number(LOADENDX.toFixed(4));
+    MIDENDX = Number(MIDENDX.toFixed(4));
+    STABENDX = Number(STABENDX.toFixed(4));
+    LOADENDZ = Number(LOADENDZ.toFixed(4));
+    MIDENDZ = Number(MIDENDZ.toFixed(4));
+    STABENDZ = Number(STABENDZ.toFixed(4));
+
+    // FLANK MISMATCH CORRECTION
+    LOADSTARTX = LOADSTARTX + LOADFLANKXADJ;
+    LOADENDX = LOADENDX + LOADFLANKXADJ;
+    MIDSTARTX = MIDSTARTX + MIDFLANKXADJ;
+    MIDENDX = MIDENDX + MIDFLANKXADJ;
+    STABSTARTX = STABSTARTX + STABFLANKXADJ;
+    STABENDX = STABENDX + STABFLANKXADJ;
+
+    // prepare posting
+    let post = '';
+    post += "%\n";
+    post += "(NCPOST BY TU DINH)\n";
+
+    // Counters
+    let globalLineCounter = 1;
+    let THREADCOUNT = THREADPASSES;
+    let RUNOUTZ = 0;
+
+    // N1 OD
+    post += "N1 (OD)\n";
+    post += "G50 S500\n";
+    post += "G97 S300 M3\n";
+    post += "T0101\n";
+    post += "G00 X" + formatNum(ODCR,4) + " Z1.0 M08\n";
+    post += "Z0.0\n";
+    post += "G01 X" + formatNum(IDCR,4) + " F" + trimNumberFixed(String(FEED)) + "\n";
+    post += "G00 Z0.1\n";
+    post += "G00 X" + formatNum(ODCR,4) + "\n";
+    post += "/G71 U.1 R.1\n";
+    post += "/G71 P100 Q101 U0.005 W0. F" + trimNumberFixed(String(FEED)) + "\n";
+    post += "N100 G00 X" + formatNum(XSTARTBEVEL,4) + "\n";
+    post += "G01 X" + formatNum(XWITHSTOCINTERCEPT,4) + " Z-" + formatNum(ZWITHSTOCK,4) + " F" + trimNumberFixed(String(FEED)) + "\n";
+    post += "X" + formatNum(XENDWITHSTOCK,4) + " Z-" + formatNum(THREADLENGTH, trimNumberFixed(String((THREADLENGTH % 1 === 0) ? 0 : 4))) + "\n";
+    post += "G00 X" + formatNum(ODCR,4) + "\n";
+    post += "N101 G00\n";
+    post += "/G70 P100 Q101\n";
+    post += "G00 Z1.0 M09\n";
+    post += "G00 X15.0 Z15.0\n";
+    post += "M01\n\n";
+
+    // N2 ID
+    post += "N2 (ID)\n";
+    post += "G50 S500\n";
+    post += "G97 S300 M3\n";
+    post += "T0101\n";
+    post += "G00 X" + formatNum(IDCR,4) + " Z1.0 M08\n";
+    post += "G00 Z0.1\n";
+    post += "/G71 U.1 R.1\n";
+    post += "/G71 P200 Q201 U-0.005 W0. F" + trimNumberFixed(String(FEED)) + "\n";
+    post += "N200 G00 X" + formatNum(IDXSTART,4) + "\n";
+    post += "G01 Z0 F" + trimNumberFixed(String(FEED)) + "\n";
+    post += "G01 X" + formatNum(ID,4) + " Z-" + formatNum(IDZEND,4) + " F" + trimNumberFixed(String(FEED)) + "\n";
+    post += "Z-" + formatNum(IDLENGTH, (IDLENGTH % 1 === 0) ? 0 : 4) + "\n";
+    post += "G00 X" + formatNum(IDCR,4) + "\n";
+    post += "N201 G00\n";
+    post += "/G70 P200 Q201\n";
+    post += "G00 Z1.0 M09\n";
+    post += "G00 X15.0 Z15.0\n";
+    post += "M01\n\n";
+
+    // N3 THREADING start
+    post += "N3 (THREADING)\n";
+    post += "G50 S500\n";
+    post += "G97 S300 M3\n";
+    post += "T0505\n";
+    post += "G00 X" + formatNum(ODCR,4) + " Z1.0 M08\n";
+
+    // LOAD FLANK main passes
+    post += "(LOAD FLANK)\n";
+    THREADCOUNT = THREADPASSES;
+    while (THREADCOUNT > 0) {
+        post += "(" + globalLineCounter + ")\n";
+        post += "G00 Z" + formatNum(LOADSTARTZ,4) + "\n";
+        post += "G00 X" + formatNum(LOADSTARTX,4) + "\n";
+        post += "G32 X" + formatNum(LOADENDX,4) + " Z-" + formatNum(LOADENDZ,4) + " F" + trimNumberFixed(String(LOADLEAD)) + "\n";
+
+        RUNOUTZ = (((RUNOUTDIA - LOADENDX) / 2) * RUNOUTANGLE) + LOADENDZ;
+        RUNOUTZ = Number(RUNOUTZ.toFixed(4));
+        post += "G32 X" + formatNum(RUNOUTDIA,4) + " Z-" + formatNum(RUNOUTZ,4) + "\n";
+
+        globalLineCounter++;
+        THREADCOUNT--;
+        LOADSTARTX = LOADSTARTX - DOC;
+        LOADENDX = LOADENDX - DOC;
+        LOADSTARTZ = Number((LOADSTARTZ + FLANKANGLE).toFixed(4));
+        LOADENDZ = Number((LOADENDZ - FLANKANGLE).toFixed(4));
+    }
+
+    // MID FLANK main passes
+    post += "(MID FLANK)\n";
+    THREADCOUNT = THREADPASSES;
+    while (THREADCOUNT > 0) {
+        post += "(" + globalLineCounter + ")\n";
+        post += "G00 Z" + formatNum(MIDSTARTZ,4) + "\n";
+        post += "G00 X" + formatNum(MIDSTARTX,4) + "\n";
+        post += "G32 X" + formatNum(MIDENDX,4) + " Z-" + formatNum(MIDENDZ,4) + " F" + trimNumberFixed(String(MIDLEAD)) + "\n";
+
+        RUNOUTZ = (((RUNOUTDIA - MIDENDX) / 2) * RUNOUTANGLE) + MIDENDZ;
+        RUNOUTZ = Number(RUNOUTZ.toFixed(4));
+        post += "G32 X" + formatNum(RUNOUTDIA,4) + " Z-" + formatNum(RUNOUTZ,4) + "\n";
+
+        globalLineCounter++;
+        THREADCOUNT--;
+        MIDSTARTX = MIDSTARTX - DOC;
+        MIDENDX = MIDENDX - DOC;
+    }
+
+    // STAB FLANK main passes
+    post += "(STAB FLANK)\n";
+    THREADCOUNT = THREADPASSES;
+    while (THREADCOUNT > 0) {
+        post += "(" + globalLineCounter + ")\n";
+        post += "G00 Z" + formatNum(STABSTARTZ,4) + "\n";
+        post += "G00 X" + formatNum(STABSTARTX,4) + "\n";
+        post += "G32 X" + formatNum(STABENDX,4) + " Z-" + formatNum(STABENDZ,4) + " F" + trimNumberFixed(String(STABLEAD)) + "\n";
+
+        RUNOUTZ = (((RUNOUTDIA - STABENDX) / 2) * RUNOUTANGLE) + STABENDZ;
+        RUNOUTZ = Number(RUNOUTZ.toFixed(4));
+        post += "G32 X" + formatNum(RUNOUTDIA,4) + " Z-" + formatNum(RUNOUTZ,4) + "\n";
+
+        globalLineCounter++;
+        THREADCOUNT--;
+        STABSTARTX = STABSTARTX - DOC;
+        STABENDX = STABENDX - DOC;
+        STABSTARTZ = Number((STABSTARTZ - FLANKANGLE).toFixed(4));
+        STABENDZ = Number((STABENDZ + FLANKANGLE).toFixed(4));
+    }
+
+    // Finish and retract
+    post += "G00 Z1.0 M09\n";
+    post += "G00 X15.0 Z15.0\n";
+    post += "M01\n\n";
+
+    // N4 - LAST PASSES (VB printed "N4 (LASS PASSES)" in your sample; reproduce that exact label)
+    post += "N4 (LASS PASSES)\n";
+    post += "G50 S500\n";
+    post += "G97 S300 M3\n";
+    post += "T0505\n";
+    post += "G00 X" + formatNum(ODCR,4) + " Z1.0 M08\n";
+
+    // Last passes: repeat the final (already decremented) values but follow VB numbering:
+    // LOAD last pass
+    post += "(LOAD FLANK)\n";
+    // prepare values as VB did: adjust back by adding DOC (we had been subtracting DOC each pass)
+    LOADSTARTX = LOADSTARTX + DOC;
+    LOADENDX = LOADENDX + DOC;
+    LOADSTARTZ = Number((LOADSTARTZ - FLANKANGLE).toFixed(4));
+    LOADENDZ = Number((LOADENDZ + FLANKANGLE).toFixed(4));
+    post += "(" + globalLineCounter + ")\n";
+    post += "G00 Z" + formatNum(LOADSTARTZ,4) + "\n";
+    post += "G00 X" + formatNum(LOADSTARTX,4) + "\n";
+    post += "G32 X" + formatNum(LOADENDX,4) + " Z-" + formatNum(LOADENDZ,4) + " F" + trimNumberFixed(String(LOADLEAD)) + "\n";
+    RUNOUTZ = (((RUNOUTDIA - LOADENDX) / 2) * RUNOUTANGLE) + LOADENDZ;
+    RUNOUTZ = Number(RUNOUTZ.toFixed(4));
+    post += "G32 X" + formatNum(RUNOUTDIA,4) + " Z-" + formatNum(RUNOUTZ,4) + "\n\n";
+    globalLineCounter++;
+
+    // MID last pass
+    post += "(MID FLANK)\n";
+    MIDSTARTX = MIDSTARTX + DOC;
+    MIDENDX = MIDENDX + DOC;
+    post += "(" + globalLineCounter + ")\n";
+    post += "G00 Z" + formatNum(MIDSTARTZ,4) + "\n";
+    post += "G00 X" + formatNum(MIDSTARTX,4) + "\n";
+    post += "G32 X" + formatNum(MIDENDX,4) + " Z-" + formatNum(MIDENDZ,4) + " F" + trimNumberFixed(String(MIDLEAD)) + "\n";
+    RUNOUTZ = (((RUNOUTDIA - MIDENDX) / 2) * RUNOUTANGLE) + MIDENDZ;
+    RUNOUTZ = Number(RUNOUTZ.toFixed(4));
+    post += "G32 X" + formatNum(RUNOUTDIA,4) + " Z-" + formatNum(RUNOUTZ,4) + "\n\n";
+    globalLineCounter++;
+
+    // STAB last pass
+    post += "(STAB FLANK)\n";
+    STABSTARTX = STABSTARTX + DOC;
+    STABENDX = STABENDX + DOC;
+    STABSTARTZ = Number((STABSTARTZ + FLANKANGLE).toFixed(4));
+    STABENDZ = Number((STABENDZ - FLANKANGLE).toFixed(4));
+    post += "(" + globalLineCounter + ")\n";
+    post += "G00 Z" + formatNum(STABSTARTZ,4) + "\n";
+    post += "G00 X" + formatNum(STABSTARTX,4) + "\n";
+    post += "G32 X" + formatNum(STABENDX,4) + " Z-" + formatNum(STABENDZ,4) + " F" + trimNumberFixed(String(STABLEAD)) + "\n";
+    RUNOUTZ = (((RUNOUTDIA - STABENDX) / 2) * RUNOUTANGLE) + STABENDZ;
+    RUNOUTZ = Number(RUNOUTZ.toFixed(4));
+    post += "G32 X" + formatNum(RUNOUTDIA,4) + " Z-" + formatNum(RUNOUTZ,4) + "\n\n";
+
+    // Final retract and end
+    post += "G00 Z1.0 M09\n";
+    post += "G00 X15.0 Z15.0\n";
+    post += "M30\n";
+    post += "%\n";
+
+    // Assign to textarea
+    document.getElementById('output').value = post;
+}
+
+
+// ================= IMAGE SCROLL / PINCH ZOOM =================
+const zoomImg = document.querySelector('.image-panel img');
+
+let zoomScale = 1;
+const ZOOM_MIN = 0.5;
+const ZOOM_MAX = 3;
+
+// Mouse wheel zoom (desktop)
+zoomImg.addEventListener('wheel', function (e) {
+    e.preventDefault();
+
+    const zoomStep = e.deltaY > 0 ? -0.1 : 0.1;
+    zoomScale += zoomStep;
+    zoomScale = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, zoomScale));
+
+    zoomImg.style.transform = `scale(${zoomScale})`;
+}, { passive: false });
+
+// Touch pinch zoom (mobile)
+let startDistance = null;
+let startScale = zoomScale;
+
+zoomImg.addEventListener('touchstart', function (e) {
+    if (e.touches.length === 2) {
+        startDistance = getTouchDistance(e.touches);
+        startScale = zoomScale;
+    }
+}, { passive: false });
+
+zoomImg.addEventListener('touchmove', function (e) {
+    if (e.touches.length === 2 && startDistance) {
+        e.preventDefault();
+
+        const currentDistance = getTouchDistance(e.touches);
+        zoomScale = startScale * (currentDistance / startDistance);
+        zoomScale = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, zoomScale));
+
+        zoomImg.style.transform = `scale(${zoomScale})`;
+    }
+}, { passive: false });
+
+zoomImg.addEventListener('touchend', function () {
+    startDistance = null;
+});
+
+// Helper function
+function getTouchDistance(touches) {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.hypot(dx, dy);
+}
+
+</script>
+
+
+<script src="../assets/bootstrap/js/bootstrap.min.js"></script>
+<script src="../assets/js/logout.js"></script>
+
+</body>
+</html>
