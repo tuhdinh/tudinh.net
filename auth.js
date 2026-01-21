@@ -21,9 +21,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// ---- CONFIG ----
+// ---- SESSION TIMEOUT ----
+const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+const LAST_ACTIVE_KEY = "lastActiveTime";
+let timeoutInterval = null;
 
-// Pages that REQUIRE login
+// ---- PAGES ----
 const protectedPages = [
   "index.html",
   "projects.html",
@@ -32,39 +35,60 @@ const protectedPages = [
   "contacts.html"
 ];
 
-// Pages that should be accessible without login
 const publicPages = [
   "login.html",
   "noaccess.html"
 ];
 
-// ---- AUTH GUARD ----
-
 const currentPage = location.pathname.split("/").pop() || "index.html";
 
-// Hide content until auth resolves
+// Hide page until auth resolves
 document.body.style.display = "none";
 
+// ---- ACTIVITY TRACKING ----
+function updateLastActive() {
+  localStorage.setItem(LAST_ACTIVE_KEY, Date.now());
+}
+
+["click", "mousemove", "keydown", "scroll", "touchstart"].forEach(evt => {
+  window.addEventListener(evt, updateLastActive, true);
+});
+
+// ---- AUTH GUARD ----
 onAuthStateChanged(auth, (user) => {
   const isProtected = protectedPages.includes(currentPage);
-  const isPublic = publicPages.includes(currentPage);
 
   if (!user && isProtected) {
-    // Not logged in → redirect to login
     window.location.replace("login.html");
     return;
   }
 
   if (user && currentPage === "login.html") {
-    // Logged in user visiting login page → redirect home
     window.location.replace("index.html");
     return;
   }
 
-  // Show page once auth is resolved
+  if (user) {
+    // Initialize activity time
+    if (!localStorage.getItem(LAST_ACTIVE_KEY)) {
+      updateLastActive();
+    }
+
+    // Clear old interval (important!)
+    if (timeoutInterval) clearInterval(timeoutInterval);
+
+    // Check inactivity every minute
+    timeoutInterval = setInterval(() => {
+      const lastActive = Number(localStorage.getItem(LAST_ACTIVE_KEY));
+      if (Date.now() - lastActive > SESSION_TIMEOUT) {
+        logout();
+      }
+    }, 60 * 1000);
+  }
+
   document.body.style.display = "block";
 
-  // Optional: Update navbar button dynamically
+  // Navbar button
   const navButton = document.querySelector("#navcol-1 .btn");
   if (navButton) {
     if (user) {
@@ -81,9 +105,10 @@ onAuthStateChanged(auth, (user) => {
 
 // ---- LOGOUT ----
 export async function logout() {
+  localStorage.removeItem(LAST_ACTIVE_KEY);
+  if (timeoutInterval) clearInterval(timeoutInterval);
   await signOut(auth);
   window.location.replace("login.html");
 }
 
-// Make logout globally available (for inline onclick)
 window.logout = logout;
