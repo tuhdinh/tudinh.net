@@ -5,6 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>External Wedge</title>
 
+    <!-- 🔒 Prevent flash before auth check -->
+    <style>
+        body {
+            display: none;
+        }
+    </style>
+
+    <!-- 🔐 Auth guard -->
+    <script type="module" src="auth.js"></script>
+    <!-- 🔑 Logout button handler -->
+    <script type="module" src="logout.js"></script>
+
+
     <!-- Bootstrap -->
     <link rel="stylesheet" href="../assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,600,700,800&display=swap">
@@ -673,11 +686,12 @@ function getTouchDistance(touches) {
     return Math.hypot(dx, dy);
 }
 
-</script>
 
 
+<script src="assets/js/jquery.min.js"></script>
 <script src="../assets/bootstrap/js/bootstrap.min.js"></script>
-<script src="../assets/js/logout.js"></script>
+<script src="../assets/js/logout.js">
+</script>
 
 </body>
 </html>
