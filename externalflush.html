@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>External Wedge</title>
+
+    <!-- 🔒 Prevent flash before auth check -->
+    <style>
+        body {
+            display: none;
+        }
+    </style>
+
+    <!-- 🔐 Auth guard -->
+    <script type="module" src="auth.js"></script>
+    <!-- 🔑 Logout button handler -->
+    <script type="module" src="logout.js"></script>
+    <!-- Styles -->
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="../assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,600,700,800&display=swap">
+
+    <!-- Existing site styles -->
+    <link rel="stylesheet" href="../assets/css/externalnpsthread.css">
+    <link rel="stylesheet" href="../assets/css/Features-Image-icons.css">
+    <link rel="stylesheet" href="../assets/css/Features-Image-images.css">
+    <link rel="stylesheet" href="../assets/css/Wave-Animation-Circle-and-Square.css">
+
+    <!-- CUSTOM TOOL STYLES (SAFE) -->
+    <style>
+        body {
+            background: #f4f4f9;
+            color: #333;
+        }
+
+        /* Remove number arrows */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        .panel {
+            padding: 12px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+            max-height: 30vh;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+
+        #od-panel { background: #e3f2fd; }
+        #thread-panel { background: #fff3e0; }
+        #machining-panel { background: #e8f5e9; }
+
+        .panel h2 {
+            font-size: 1.05rem;
+            padding: 6px 8px;
+            border-radius: 6px;
+            color: white;
+        }
+
+        #od-panel h2 { background: #1e88e5; }
+        #thread-panel h2 { background: #fb8c00; }
+        #machining-panel h2 { background: #43a047; }
+
+        label {
+            font-weight: bold;
+            margin-top: 6px;
+            display: block;
+        }
+
+        input {
+            width: 100%;
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .image-panel img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.2);
+            cursor: grab;
+            touch-action: none;
+            transform-origin: center;
+        }
+
+        .generate-container button {
+            font-size: 1.05rem;
+            font-weight: bold;
+        }
+
+        textarea {
+            width: 100%;
+            height: 450px;
+            resize: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-light navbar-expand-md sticky-top navbar-shrink py-3" id="mainNav">
+    <div class="container">
+
+        <!-- BRAND -->
+        <a class="navbar-brand d-flex align-items-center" href="../index.html">
+            <span class="bs-icon-sm bs-icon-circle bs-icon-primary shadow d-flex justify-content-center align-items-center me-2">
+                <!-- SVG ICON -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16">
+                    <!-- svg paths -->
+                </svg>
+            </span>
+            <span>Tu Dinh</span>
+        </a>
+
+        <!-- TOGGLER (ONLY ONE) -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navcol-1">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- NAV LINKS -->
+        <div class="collapse navbar-collapse" id="navcol-1">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="../learn.html">Learn</a></li>
+                <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+                <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+                <li class="nav-item"><a class="nav-link" href="../contacts.html">Contacts</a></li>
+            </ul>
+            <button class="btn btn-danger shadow" id="logoutBtn">Log Out</button>
+        </div>
+
+    </div>
+</nav>
+
+<!-- TITLE -->
+<section class="py-4 text-center">
+    <h2 class="fw-bold">External Flush</h2>
+</section>
+
+<div class="container">
+    <!-- LEFT: 3 scrollable menus -->
+    <div class="menus">
+
+        <!-- PROFILE -->
+        <div class="panel" id="od-panel">
+            <h2>Profile</h2>
+
+            <label>
+                Thread Diameter
+                <input id="ThreadDiameter" type="number" step="any" value="6.6515">
+            </label>
+
+            <label>
+                Thread Diameter Length
+                <input id="ThreadDiameterLength" type="number" step="any" value="1.784">
+            </label>
+
+            <label>
+                Thread Length
+                <input id="ThreadLength" type="number" step="any" value="3.587">
+            </label>
+
+            <label>
+                Run Out Diameter
+                <input id="RunOutDia" type="number" step="any" value="7.1">
+            </label>
+
+            <label>
+                Clip Length
+                <input id="ClipLength" type="number" step="any" value="1.13">
+            </label>
+
+            <label>
+                Run In Diameter
+                <input id="RunInDia" type="number" step="any" value="6.482">
+            </label>
+        </div>
+
+
+        <!-- THREAD PROFILE -->
+        <div class="panel" id="thread-panel">
+            <h2>Thread Profile</h2>
+
+            <label>
+                Lead
+                <input id="Lead" type="number" step="any" value=".2">
+            </label>
+
+            <label>
+                Taper
+                <input id="Taper" type="number" step="any" value=".094">
+            </label>
+
+            <label>
+                Thread Height
+                <input id="ThreadHeight" type="number" step="any" value=".054">
+            </label>
+
+            <label>
+                Thread Angle
+                <input id="ThreadAngle" type="number" step="any" value="2.25">
+            </label>
+        </div>
+
+        <!-- MACHINING -->
+        <div class="panel" id="machining-panel">
+            <h2>Machining</h2>
+
+            <label>
+                Depth of Cut
+                <input id="DepthOfCut" type="number" step="any" value="0.012">
+            </label>
+
+            <label>
+                Threading Start Position
+                <input id="RunIn" type="number" step="any" value="1.0">
+            </label>
+
+            <label>
+                Clip Length Adjustment
+                <input id="ClipLengthAdjustment" type="number" step="any" value="0.0">
+            </label>
+            <label>
+                Clip Diameter Adjustment
+                <input id="ClipDiameterAdjustment" type="number" step="any" value="-.007">
+            </label>
+        </div>
+
+    </div>
+
+    <!-- RIGHT: big image -->
+    <div class="image-panel">
+        <img src="assets\img\drawing\externalwedge.png" alt="External Wedge Thread">
+    </div>
+</div>
+
+<!-- Generate button + output textarea -->
+<div class="generate-container">
+    <button onclick="generateGCode()">Generate Program</button>
+    <textarea id="output" placeholder="G-code will appear here..."></textarea>
+</div>
+
+<script>
+/* Utility helpers: formatting to match VB.NET style */
+    function readFloat(id, fallback = 0) {
+        const el = document.getElementById(id);
+        if (!el) return fallback;
+        const v = parseFloat(el.value);
+        return isNaN(v) ? fallback : v;
+    }
+
+    function trimNum(n) {
+        return String(Number(n.toFixed(6))).replace(/\.?0+$/, '');
+    }
+
+    function generateGCode() {
+
+        // ================= READ INPUTS =================
+        const THREADDIAMETER = readFloat("ThreadDiameter");
+        const THREADDIAMETERLENGTH = readFloat("ThreadDiameterLength");
+        const THREADLENGTH = readFloat("ThreadLength");
+        const THREADANGLE = readFloat("ThreadAngle");
+        const THREADHEIGHT = readFloat("ThreadHeight");
+        const LEAD = readFloat("Lead");
+        const TAPER = readFloat("Taper");
+
+        const CLIPDIAMETERADJ = readFloat("ClipDiameterAdjustment", 0);
+        const DOC = readFloat("DepthOfCut");
+        const CLIPLENGTH = readFloat("ClipLength");
+        const CLIPLENGTHADJ = readFloat("ClipLengthAdjustment");
+
+        const RUNINDIA = readFloat("RunInDia");
+        const RUNOUTDIA = Number(readFloat("RunOutDia").toFixed(5));
+        let RUNIN = Math.round(readFloat("RunIn") * 10) / 10;
+
+        // ================= THREAD PASSES =================
+        let THREADPASSES = Math.round((2 * THREADHEIGHT) / DOC);
+        const TEST = (2 * THREADHEIGHT) / DOC;
+        if (THREADPASSES < TEST) THREADPASSES++;
+
+        // ================= THREAD GEOMETRY =================
+        let Z1 = RUNIN;
+        let Z3 = THREADLENGTH;
+
+        let X1 = RUNINDIA;
+        let X2 = THREADDIAMETER - THREADHEIGHT * 2;
+
+        let Z2 = CLIPLENGTH;
+        Z2 = Number(Z2.toFixed(4));
+
+        let X3 = RUNINDIA + (THREADLENGTH - Z2) * TAPER;
+        X3 = Number(X3.toFixed(4));
+
+        // DOC compensation
+        X1 += DOC * (THREADPASSES - 1);
+        X3 += DOC * (THREADPASSES - 1);
+
+        // Flank angle
+        let FLANKANGLE =
+            (Math.tan((THREADANGLE * Math.PI) / 180) / 2) * DOC;
+        FLANKANGLE = Number(FLANKANGLE.toFixed(4));
+
+        // ================= CLIP CALC =================
+        const ZCOMP = LEAD / 2 + 0.03;
+
+        let CLIPZ1 = Z1 - ZCOMP;
+        let CLIPZ2 =
+            Math.abs(
+                THREADDIAMETERLENGTH -
+                (THREADDIAMETER - RUNINDIA) / TAPER
+            ) -
+            (CLIPDIAMETERADJ / TAPER);
+
+        let CLIPZ3 = CLIPLENGTH + CLIPLENGTHADJ;
+        let CLIPZ4 = CLIPZ3 + 0.1;
+
+        let CLIPX1 = RUNINDIA;
+        let CLIPX2 = RUNINDIA;
+        let CLIPX3 =
+            THREADDIAMETER -
+            TAPER * (THREADDIAMETERLENGTH - CLIPZ3) +
+            CLIPDIAMETERADJ;
+        let CLIPX4 = CLIPX3 + 0.2;
+
+        // Round clip values
+        CLIPX1 = Number(CLIPX1.toFixed(4));
+        CLIPX2 = Number(CLIPX2.toFixed(4));
+        CLIPX3 = Number(CLIPX3.toFixed(4));
+        CLIPX4 = Number(CLIPX4.toFixed(4));
+
+        CLIPZ1 = Number(CLIPZ1.toFixed(4));
+        CLIPZ2 = Number(CLIPZ2.toFixed(4));
+        CLIPZ3 = Number(CLIPZ3.toFixed(4));
+        CLIPZ4 = Number(CLIPZ4.toFixed(4));
+
+        // ================= POSTING =================
+        let post = "%\n";
+        post += "(NCPOST BY TU DINH)\n";
+        post += "N3 (THREADING)\n";
+        post += "G50 S500\n";
+        post += "G97 S300 M3\n";
+        post += "T0505\n";
+        post += `G00 X${trimNum(RUNOUTDIA)} Z1.0 M08\n`;
+
+        let LINECOUNT = 1;
+        let THREADCOUNT = THREADPASSES;
+
+        // ================= THREAD PASSES =================
+        while (THREADCOUNT > 0) {
+            post += `(${LINECOUNT})\n`;
+            post += `G00 Z${trimNum(Z1)}\n`;
+            post += `G00 X${trimNum(X1)}\n`;
+            post += `G32 Z-${trimNum(Z2)} F${trimNum(LEAD)}\n`;
+            post += `G32 X${trimNum(X3)} Z-${trimNum(Z3)} F${trimNum(LEAD)}\n`;
+            post += `X${trimNum(RUNOUTDIA)}\n`;
+
+            LINECOUNT++;
+            THREADCOUNT--;
+
+            X1 -= DOC;
+            X3 -= DOC;
+            Z1 = Number((Z1 + FLANKANGLE).toFixed(4));
+            Z3 = Number((Z3 - FLANKANGLE).toFixed(4));
+        }
+
+        // ================= LAST PASS =================
+        post += "G00 Z1.0 M09\n";
+        post += "G30 U.0 W.0\n";
+        post += "M01\n\n";
+
+        post += "N4 (LASS PASSES)\n";
+        post += "G50 S500\n";
+        post += "G97 S300 M3\n";
+        post += "T0505\n";
+        post += `G00 X${trimNum(RUNOUTDIA)} Z1.0 M08\n`;
+
+        // Undo last decrement
+        X1 += DOC;
+        X3 += DOC;
+        Z1 = Number((Z1 - FLANKANGLE).toFixed(4));
+        Z3 = Number((Z3 + FLANKANGLE).toFixed(4));
+
+        post += `(${LINECOUNT})\n`;
+        post += `G00 Z${trimNum(Z1)}\n`;
+        post += `G00 X${trimNum(X1)}\n`;
+        post += `G32 Z-${trimNum(Z2)} F${trimNum(LEAD)}\n`;
+        post += `G32 X${trimNum(X3)} Z-${trimNum(Z3)} F${trimNum(LEAD)}\n`;
+        post += `X${trimNum(RUNOUTDIA)}\n`;
+
+        post += "G00 Z1.0 M09\n";
+        post += "G30 U.0 W.0\n";
+        post += "M01\n\n";
+
+        // ================= CLIP =================
+        post += "N5 (CLIP)\n";
+        post += "G50 S500\n";
+        post += "G97 S300 M3\n";
+        post += "T0505\n";
+        post += `G00 X${trimNum(RUNOUTDIA)} Z1.0 M08\n`;
+
+        post += `G00 X${trimNum(CLIPX1)} Z${trimNum(CLIPZ1)}\n`;
+        post += `G32 X${trimNum(CLIPX2)} Z-${trimNum(CLIPZ2)} F${trimNum(LEAD)}\n`;
+        post += `G32 X${trimNum(CLIPX3)} Z-${trimNum(CLIPZ3)}\n`;
+        post += `G32 X${trimNum(CLIPX4)} Z-${trimNum(CLIPZ4)}\n`;
+
+        post += "\nG00 Z1.0 M09\n";
+        post += "G30 U.0 W.0\n";
+        post += "M30\n%\n";
+
+        document.getElementById("output").value = post;
+    }
+
+
+
+
+// ================= IMAGE SCROLL / PINCH ZOOM =================
+const zoomImg = document.querySelector('.image-panel img');
+
+let zoomScale = 1;
+const ZOOM_MIN = 0.5;
+const ZOOM_MAX = 3;
+
+// Mouse wheel zoom (desktop)
+zoomImg.addEventListener('wheel', function (e) {
+    e.preventDefault();
+
+    const zoomStep = e.deltaY > 0 ? -0.1 : 0.1;
+    zoomScale += zoomStep;
+    zoomScale = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, zoomScale));
+
+    zoomImg.style.transform = `scale(${zoomScale})`;
+}, { passive: false });
+
+// Touch pinch zoom (mobile)
+let startDistance = null;
+let startScale = zoomScale;
+
+zoomImg.addEventListener('touchstart', function (e) {
+    if (e.touches.length === 2) {
+        startDistance = getTouchDistance(e.touches);
+        startScale = zoomScale;
+    }
+}, { passive: false });
+
+zoomImg.addEventListener('touchmove', function (e) {
+    if (e.touches.length === 2 && startDistance) {
+        e.preventDefault();
+
+        const currentDistance = getTouchDistance(e.touches);
+        zoomScale = startScale * (currentDistance / startDistance);
+        zoomScale = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, zoomScale));
+
+        zoomImg.style.transform = `scale(${zoomScale})`;
+    }
+}, { passive: false });
+
+zoomImg.addEventListener('touchend', function () {
+    startDistance = null;
+});
+
+// Helper function
+function getTouchDistance(touches) {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.hypot(dx, dy);
+}
+
+</script>
+<script src="assets/js/jquery.min.js"></script>
+<script src="../assets/bootstrap/js/bootstrap.min.js"></script>
+<script src="../assets/js/logout.js"></script>
+
+</body>
+</html>

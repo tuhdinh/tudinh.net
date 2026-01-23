@@ -35,11 +35,6 @@ const protectedPages = [
   "contacts.html"
 ];
 
-const publicPages = [
-  "login.html",
-  "noaccess.html"
-];
-
 const currentPage = location.pathname.split("/").pop() || "index.html";
 
 // Hide page until auth resolves
@@ -50,45 +45,57 @@ function updateLastActive() {
   localStorage.setItem(LAST_ACTIVE_KEY, Date.now());
 }
 
-["click", "mousemove", "keydown", "scroll", "touchstart"].forEach(evt => {
+["click", "keydown", "scroll", "touchstart"].forEach(evt => {
   window.addEventListener(evt, updateLastActive, true);
 });
+
+// ---- FORCE TIMEOUT CHECK (ON LOAD / RETURN) ----
+function checkSessionTimeout() {
+  const lastActive = Number(localStorage.getItem(LAST_ACTIVE_KEY));
+  if (lastActive && Date.now() - lastActive > SESSION_TIMEOUT) {
+    logout();
+    return true;
+  }
+  return false;
+}
 
 // ---- AUTH GUARD ----
 onAuthStateChanged(auth, (user) => {
   const isProtected = protectedPages.includes(currentPage);
 
+  // Not logged in but page is protected
   if (!user && isProtected) {
     window.location.replace("login.html");
     return;
   }
 
+  // Logged in but on login page
   if (user && currentPage === "login.html") {
     window.location.replace("index.html");
     return;
   }
 
   if (user) {
-    // Initialize activity time
-    if (!localStorage.getItem(LAST_ACTIVE_KEY)) {
-      updateLastActive();
-    }
+    // 🚨 Check timeout immediately (mobile-safe)
+    if (checkSessionTimeout()) return;
 
-    // Clear old interval (important!)
+    // Initialize activity time
+    updateLastActive();
+
+    // Clear old interval
     if (timeoutInterval) clearInterval(timeoutInterval);
 
     // Check inactivity every minute
     timeoutInterval = setInterval(() => {
-      const lastActive = Number(localStorage.getItem(LAST_ACTIVE_KEY));
-      if (Date.now() - lastActive > SESSION_TIMEOUT) {
-        logout();
+      if (checkSessionTimeout()) {
+        clearInterval(timeoutInterval);
       }
     }, 60 * 1000);
   }
 
   document.body.style.display = "block";
 
-  // Navbar button
+  // ---- NAVBAR BUTTON ----
   const navButton = document.querySelector("#navcol-1 .btn");
   if (navButton) {
     if (user) {
