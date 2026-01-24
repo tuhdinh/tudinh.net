@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Learn</title>
+    <title>Contacts</title>
 
 
     <!-- 🔒 Prevent flash before auth check -->
@@ -19,16 +19,15 @@
     <!-- 🔑 Logout button handler -->
     <script type="module" src="logout.js"></script>
 
+
+
     <!-- Styles -->
+
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
     <link rel="stylesheet" href="assets/css/externalnpsthread.css">
     <link rel="stylesheet" href="assets/css/Features-Image-icons.css">
     <link rel="stylesheet" href="assets/css/Features-Image-images.css">
-    <link rel="stylesheet" href="assets/css/ml-video-ml-video.css">
-    <link rel="stylesheet" href="assets/css/ml-video.css">
-    <link rel="stylesheet" href="assets/css/Responsive-Youtube-Embed.css">
-    <link rel="stylesheet" href="assets/css/Responsive-YouTube-Video-Section-Dark-Centered.css">
     <link rel="stylesheet" href="assets/css/Wave-Animation-Circle-and-Square.css">
 </head>
 
@@ -45,39 +44,126 @@
                     <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
                     <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
                     <li class="nav-item"><a class="nav-link" href="../contacts.html">Contacts</a></li>
-                </ul><button class="btn btn-danger shadow" type="button" id="logoutBtn">Log Out</button>
+ </ul>
+
+                <!-- Logout button -->
+                <button class="btn btn-danger shadow" id="logout-btn">Sign out</button>
+
 
             </div>
         </div>
     </nav>
-    <section class="py-5">
+<section class="py-5">
         <div class="container py-5">
             <div class="row mb-4 mb-lg-5">
                 <div class="col-md-8 col-xl-6 text-center mx-auto">
-                    <p class="fw-bold text-success mb-2" style="font-size: 36px;">Esprit Cam</p>
-                    <h3 class="fw-bold">External Flush</h3>
-                    <div></div>
-                    <section class="clean-block clean-info dark">
-                        <div class="container">
-                            <div class="videoWrapper"><iframe allowfullscreen="" frameborder="0" src="https://www.youtube.com/embed/-2HL527sAxo" class="embed-responsive-item" width="100%" height="auto"></iframe></div>
-                        </div>
-                    </section>
-                    <section class="clean-block clean-info dark"></section>
-                    <section class="clean-block clean-info dark"></section>
-                    <section class="clean-block clean-info dark"></section>
-                    <section class="clean-block clean-info dark"></section>
-                    <section class="clean-block clean-info dark"></section>
-                </div>
-            </div>
-        </div>
+                    <p class="fw-bold text-success mb-2">🛠Conversion</p>
+</div>
+</div>
+</div>
+</div>
+          
+        
     </section>
+
+
+
+
+  <table border="0" width="100%" cellpadding="10">
+    <tr>
+      <td width="50%" valign="top">
+        <fieldset>
+          <legend><b>Input</b></legend>
+          <textarea id="input" rows="20" cols="60"></textarea>
+        </fieldset>
+      </td>
+      <td width="50%" valign="top">
+        <fieldset>
+          <legend><b>Output</b></legend>
+          <textarea id="output" rows="20" cols="60" readonly></textarea>
+        </fieldset>
+      </td>
+    </tr>
+  </table>
+
+  <hr>
+
+  <fieldset>
+    <legend><b>Conversion Options</b></legend>
+    <table>
+      <tr>
+        <td>
+          <input type="checkbox" id="toMetric" checked onclick="handleCheckbox('toMetric')"> Imperial to Metric
+        </td>
+        <td>
+          <input type="checkbox" id="toImperial" onclick="handleCheckbox('toImperial')"> Metric to Imperial
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <label for="letters">Look for Letters: </label>
+          <input type="text" id="letters" value="X,Z,F,R,J,K,U,W">
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <br>
+          <button onclick="convert()">Convert</button>
+        </td>
+      </tr>
+    </table>
+  </fieldset>
+
+  <script>
+    function handleCheckbox(id) {
+      if (id === "toMetric") {
+        document.getElementById("toImperial").checked = false;
+      } else {
+        document.getElementById("toMetric").checked = false;
+      }
+    }
+
+    function convert() {
+      const input = document.getElementById('input').value;
+      const toMetric = document.getElementById('toMetric').checked;
+      const toImperial = document.getElementById('toImperial').checked;
+      const letterList = document.getElementById('letters').value.split(',').map(l => l.trim().toUpperCase());
+
+      if (toMetric === toImperial) {
+        alert('Please select only one conversion direction.');
+        return;
+      }
+
+      const lines = input.split('\n');
+      const convertedLines = lines.map(line => {
+        return line.replace(/([A-Z])([-+]?[0-9]*\.?[0-9]+)/gi, (match, letter, number) => {
+          if (!letterList.includes(letter.toUpperCase())) return match;
+          let num = parseFloat(number);
+          if (isNaN(num)) return match;
+
+          num = toMetric ? num * 25.4 : num / 25.4;
+
+          // Round to 4 decimals, then format
+          let rounded = Math.round(num * 10000) / 10000;
+          let formatted;
+          if (Number.isInteger(rounded)) {
+            formatted = rounded.toFixed(1); // force .0 for whole numbers
+          } else {
+            formatted = rounded.toString();
+          }
+
+          return letter + formatted;
+        });
+      });
+
+      document.getElementById('output').value = convertedLines.join('\n');
+    }
+  </script>
     <footer class="bg-primary-gradient"></footer>
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="assets/js/auth.js"></script>
     <script src="assets/js/bold-and-bright.js"></script>
     <script src="assets/js/logout.js"></script>
-    <script src="assets/js/ml-video.js"></script>
 </body>
-
 </html>
