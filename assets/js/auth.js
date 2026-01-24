@@ -21,9 +21,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// ---- CONFIG ----
+// ---- SESSION TIMEOUT ----
+const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+const LAST_ACTIVE_KEY = "lastActiveTime";
+let timeoutInterval = null;
 
-// Pages that REQUIRE login
+// ---- PAGES ----
 const protectedPages = [
   "index.html",
   "projects.html",
@@ -32,35 +35,87 @@ const protectedPages = [
   "contacts.html"
 ];
 
-// Pages that should be accessible without login
-const publicPages = [
-  "login.html",
-  "noaccess.html"
-];
-
-// ---- AUTH GUARD ----
-
 const currentPage = location.pathname.split("/").pop() || "index.html";
 
+// Hide page until auth resolves
+document.body.style.display = "none";
+
+// ---- ACTIVITY TRACKING ----
+function updateLastActive() {
+  localStorage.setItem(LAST_ACTIVE_KEY, Date.now());
+}
+
+["click", "keydown", "scroll", "touchstart"].forEach(evt => {
+  window.addEventListener(evt, updateLastActive, true);
+});
+
+// ---- FORCE TIMEOUT CHECK (ON LOAD / RETURN) ----
+function checkSessionTimeout() {
+  const lastActive = Number(localStorage.getItem(LAST_ACTIVE_KEY));
+  if (lastActive && Date.now() - lastActive > SESSION_TIMEOUT) {
+    logout();
+    return true;
+  }
+  return false;
+}
+
+// ---- AUTH GUARD ----
 onAuthStateChanged(auth, (user) => {
-  if (!user && protectedPages.includes(currentPage)) {
-    // Not logged in → go to login
+  const isProtected = protectedPages.includes(currentPage);
+
+  // Not logged in but page is protected
+  if (!user && isProtected) {
     window.location.replace("login.html");
     return;
   }
 
+  // Logged in but on login page
   if (user && currentPage === "login.html") {
-    // Logged in user visiting login page → send home
     window.location.replace("index.html");
     return;
   }
 
-  // Auth decided → show page
+  if (user) {
+    // 🚨 Check timeout immediately (mobile-safe)
+    if (checkSessionTimeout()) return;
+
+    // Initialize activity time
+    updateLastActive();
+
+    // Clear old interval
+    if (timeoutInterval) clearInterval(timeoutInterval);
+
+    // Check inactivity every minute
+    timeoutInterval = setInterval(() => {
+      if (checkSessionTimeout()) {
+        clearInterval(timeoutInterval);
+      }
+    }, 60 * 1000);
+  }
+
   document.body.style.display = "block";
+
+  // ---- NAVBAR BUTTON ----
+  const navButton = document.querySelector("#navcol-1 .btn");
+  if (navButton) {
+    if (user) {
+      navButton.textContent = "Logout";
+      navButton.className = "btn btn-outline-danger shadow";
+      navButton.onclick = logout;
+    } else {
+      navButton.textContent = "Login";
+      navButton.className = "btn btn-primary shadow";
+      navButton.onclick = () => window.location.replace("login.html");
+    }
+  }
 });
 
 // ---- LOGOUT ----
 export async function logout() {
+  localStorage.removeItem(LAST_ACTIVE_KEY);
+  if (timeoutInterval) clearInterval(timeoutInterval);
   await signOut(auth);
   window.location.replace("login.html");
 }
+
+window.logout = logout;
