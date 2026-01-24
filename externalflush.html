@@ -155,34 +155,22 @@
         <div class="panel" id="od-panel">
             <h2>Profile</h2>
 
-            <label>
-                Thread Diameter
-                <input id="ThreadDiameter" type="number" step="any" value="6.6515">
+            <label>Thread Diameter<input id="ThreadDiameter" type="number" step="any" value="6.6515">
             </label>
 
-            <label>
-                Thread Diameter Length
-                <input id="ThreadDiameterLength" type="number" step="any" value="1.784">
+            <label>Thread Diameter Length<input id="ThreadDiameterLength" type="number" step="any" value="1.784">
             </label>
 
-            <label>
-                Thread Length
-                <input id="ThreadLength" type="number" step="any" value="3.587">
+            <label>Thread Length<input id="ThreadLength" type="number" step="any" value="3.587">
             </label>
 
-            <label>
-                Run Out Diameter
-                <input id="RunOutDia" type="number" step="any" value="7.1">
+            <label>Run Out Diameter<input id="RunOutDia" type="number" step="any" value="7.1">
             </label>
 
-            <label>
-                Clip Length
-                <input id="ClipLength" type="number" step="any" value="1.13">
+            <label>Clip Length<input id="ClipLength" type="number" step="any" value="1.13">
             </label>
 
-            <label>
-                Run In Diameter
-                <input id="RunInDia" type="number" step="any" value="6.482">
+            <label>Run In Diameter<input id="RunInDia" type="number" step="any" value="6.482">
             </label>
         </div>
 
@@ -191,24 +179,16 @@
         <div class="panel" id="thread-panel">
             <h2>Thread Profile</h2>
 
-            <label>
-                Lead
-                <input id="Lead" type="number" step="any" value=".2">
+            <label>Lead<input id="Lead" type="number" step="any" value=".2">
             </label>
 
-            <label>
-                Taper
-                <input id="Taper" type="number" step="any" value=".094">
+            <label>Taper<input id="Taper" type="number" step="any" value=".094">
             </label>
 
-            <label>
-                Thread Height
-                <input id="ThreadHeight" type="number" step="any" value=".054">
+            <label>Thread Height<input id="ThreadHeight" type="number" step="any" value=".054">
             </label>
 
-            <label>
-                Thread Angle
-                <input id="ThreadAngle" type="number" step="any" value="2.25">
+            <label>Thread Angle<input id="ThreadAngle" type="number" step="any" value="2.25">
             </label>
         </div>
 
@@ -216,38 +196,31 @@
         <div class="panel" id="machining-panel">
             <h2>Machining</h2>
 
-            <label>
-                Depth of Cut
-                <input id="DepthOfCut" type="number" step="any" value="0.012">
+            <label>Depth of Cut<input id="DepthOfCut" type="number" step="any" value="0.012">
             </label>
 
-            <label>
-                Threading Start Position
-                <input id="RunIn" type="number" step="any" value="1.0">
+            <label>Threading Start Position<input id="RunIn" type="number" step="any" value="1.0">
             </label>
 
-            <label>
-                Clip Length Adjustment
-                <input id="ClipLengthAdjustment" type="number" step="any" value="0.0">
+            <label>Clip Length Adjustment<input id="ClipLengthAdjustment" type="number" step="any" value="0.0">
             </label>
-            <label>
-                Clip Diameter Adjustment
-                <input id="ClipDiameterAdjustment" type="number" step="any" value="-.007">
+            <label>Clip Diameter Adjustment<input id="ClipDiameterAdjustment" type="number" step="any" value="-.007">
             </label>
         </div>
 
     </div>
 
     <!-- RIGHT: big image -->
-    <div class="image-panel">
+        <div class="col-md-8 text-center image-panel">
         <img src="assets\img\drawing\externalwedge.png" alt="External Wedge Thread">
     </div>
 </div>
 
 <!-- Generate button + output textarea -->
-<div class="generate-container">
-    <button onclick="generateGCode()">Generate Program</button>
-    <textarea id="output" placeholder="G-code will appear here..."></textarea>
+<!-- OUTPUT -->
+<div class="container my-4 generate-container">
+    <button class="btn btn-primary mb-3 w-100" onclick="generateGCode()">Generate Program</button>
+    <textarea id="output" class="form-control" placeholder="G-code will appear here..."></textarea>
 </div>
 
 <script>
