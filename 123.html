@@ -1,27 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test 4</title>
+    <title>Auth Test</title>
 
-    <!-- Hide body to prevent flash -->
+    <!-- Hide page until auth check runs -->
     <style>
-        body { display: none; }
+        body {
+            display: none;
+        }
     </style>
 
-    <!-- Auth check -->
+    <!-- Load your auth.js -->
     <script type="module" src="auth.js"></script>
-
-    <!-- Styles -->
-    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
 </head>
 <body>
-    <h1>Welcome! You are logged in.</h1>
-
-    <!-- Scripts -->
-    <script src="assets/js/jquery.min.js"></script>
-    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
-    <script type="module" src="logout.js"></script>
+    <h1>If you see this, auth.js did NOT redirect</h1>
+    <p>This page should NOT appear if you're not logged in.</p>
 </body>
 </html>
