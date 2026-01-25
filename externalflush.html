@@ -453,5 +453,207 @@ function getTouchDistance(touches) {
 <script src="../assets/bootstrap/js/bootstrap.min.js"></script>
 <script src="../assets/js/logout.js"></script>
 
+
+
+
+
+    <!-- Tracer Start -->
+
+
+
+    <button onclick="parsePath()">Parse</button>
+    <button onclick="startTrace()">Start</button>
+    <button onclick="stopTrace()">Stop</button>
+    <button onclick="stepBackward()">Backward</button>
+    <button onclick="stepForward()">Forward</button>
+    <button onclick="finishTrace()">End</button>
+  </fieldset>
+
+  <hr>
+
+  <fieldset>
+    <legend><b>Trace Output</b> (<span id="coords">X: 0.0000, Z: 0.0000</span>)</legend>
+    <canvas id="canvas" width="1000" height="600" style="border:1px solid black; cursor: crosshair;"></canvas>
+  </fieldset>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const coordsDisplay = document.getElementById('coords');
+
+    let scale = 80; // Increased zoom level
+    let offsetX = 200; // Adjusted for centering
+    let offsetY = 500;
+    let isDragging = false;
+    let dragStart = { x: 0, y: 0 };
+    let fullPath = [], currentStep = 0, traceInterval = null;
+
+    canvas.addEventListener("wheel", function (e) {
+      const zoomFactor = 1.1;
+      const mouseX = e.offsetX;
+      const mouseY = e.offsetY;
+      const delta = e.deltaY < 0 ? zoomFactor : 1 / zoomFactor;
+      const prevScale = scale;
+
+      scale *= delta;
+      offsetX = mouseX - ((mouseX - offsetX) * (scale / prevScale));
+      offsetY = mouseY - ((mouseY - offsetY) * (scale / prevScale));
+
+      e.preventDefault();
+      drawPath(currentStep);
+    });
+
+    canvas.addEventListener("mousedown", function (e) {
+      isDragging = true;
+      dragStart.x = e.clientX;
+      dragStart.y = e.clientY;
+    });
+
+    canvas.addEventListener("mouseup", function () {
+      isDragging = false;
+    });
+
+    canvas.addEventListener("mousemove", function (e) {
+      if (isDragging) {
+        offsetX += e.clientX - dragStart.x;
+        offsetY += e.clientY - dragStart.y;
+        dragStart.x = e.clientX;
+        dragStart.y = e.clientY;
+        drawPath(currentStep);
+      }
+      const zx = ((e.offsetX - offsetX) / scale).toFixed(4);
+      const xx = ((offsetY - e.offsetY) / scale).toFixed(4);
+      coordsDisplay.textContent = `X: ${xx}, Z: ${zx}`;
+    });
+
+    function parsePath() {
+      const code = document.getElementById('output').value.toUpperCase();
+      const lines = code.split('\n');
+      fullPath = [];
+      let currentX = 0, currentZ = 0;
+      lines.forEach(line => {
+        const gType = line.match(/G(\d+)/);
+        const g = gType ? gType[1] : "1";
+        const xMatch = line.match(/X([-+]?\d*\.?\d+)/);
+        const zMatch = line.match(/Z([-+]?\d*\.?\d+)/);
+        const iMatch = line.match(/I([-+]?\d*\.?\d+)/);
+        const kMatch = line.match(/K([-+]?\d*\.?\d+)/);
+
+        const newX = xMatch ? parseFloat(xMatch[1]) : currentX;
+        const newZ = zMatch ? parseFloat(zMatch[1]) : currentZ;
+
+        if (g === "2" || g === "3") {
+          fullPath.push({ type: "arc", cw: g === "2", x1: currentX, z1: currentZ, x2: newX, z2: newZ, i: iMatch ? parseFloat(iMatch[1]) : 0, k: kMatch ? parseFloat(kMatch[1]) : 0 });
+        } else {
+          fullPath.push({ type: g === "0" ? "rapid" : "line", x1: currentX, z1: currentZ, x2: newX, z2: newZ });
+        }
+
+        currentX = newX;
+        currentZ = newZ;
+      });
+      currentStep = 0;
+      drawPath(currentStep);
+    }
+
+    function drawPath(step) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < step; i++) {
+        const p = fullPath[i];
+        if (p.type === "line" || p.type === "rapid") {
+          ctx.beginPath();
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = p.type === "rapid" ? "green" : "blue";
+          ctx.setLineDash(p.type === "rapid" ? [10, 10] : []);
+          ctx.moveTo(offsetX + p.z1 * scale, offsetY - p.x1 * scale);
+          ctx.lineTo(offsetX + p.z2 * scale, offsetY - p.x2 * scale);
+          ctx.stroke();
+        } else if (p.type === "arc") {
+          drawArc(p);
+        }
+      }
+
+      if (step > 0) {
+        const last = fullPath[step - 1];
+        const tx = offsetX + last.z2 * scale;
+        const ty = offsetY - last.x2 * scale;
+        drawToolMarker(tx, ty);
+      }
+    }
+
+    function drawArc(p) {
+      const cx = p.z1 + p.k;
+      const cy = p.x1 + p.i;
+      const radius = Math.sqrt(p.i * p.i + p.k * p.k);
+      const startAngle = Math.atan2(p.x1 - cy, p.z1 - cx);
+      const endAngle = Math.atan2(p.x2 - cy, p.z2 - cx);
+
+      ctx.beginPath();
+      ctx.strokeStyle = "green";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([]);
+      ctx.arc(
+        offsetX + cx * scale,
+        offsetY - cy * scale,
+        radius * scale,
+        startAngle,
+        endAngle,
+        !p.cw
+      );
+      ctx.stroke();
+    }
+
+    function drawToolMarker(x, y) {
+      ctx.beginPath();
+      ctx.fillStyle = "red";
+      ctx.moveTo(x, y);
+      ctx.lineTo(x - 5, y + 10);
+      ctx.lineTo(x + 5, y + 10);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function stepForward() {
+      if (currentStep < fullPath.length) {
+        currentStep++;
+        drawPath(currentStep);
+      }
+    }
+
+    function stepBackward() {
+      if (currentStep > 0) {
+        currentStep--;
+        drawPath(currentStep);
+      }
+    }
+
+    function startTrace() {
+      if (traceInterval) return;
+      traceInterval = setInterval(() => {
+        if (currentStep >= fullPath.length) {
+          stopTrace();
+          return;
+        }
+        currentStep++;
+        drawPath(currentStep);
+      }, 20);
+    }
+
+    function stopTrace() {
+      clearInterval(traceInterval);
+      traceInterval = null;
+    }
+
+    function finishTrace() {
+      stopTrace();
+      currentStep = fullPath.length;
+      drawPath(currentStep);
+    }
+  </script>
+
+
+    <!-- Tracer End -->
+
+
 </body>
 </html>
