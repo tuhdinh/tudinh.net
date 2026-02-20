@@ -33,7 +33,6 @@ const protectedPages = [
 "conversion.html",
 "esprit.html",
 "externalflush.html",
-"externalflush.png",
 "externalwedge.html",
 "fea.html",
 "index.html",
