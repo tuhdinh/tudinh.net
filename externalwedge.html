@@ -644,21 +644,21 @@ function generateGCode() {
 // ================= IMAGE SCROLL / PINCH ZOOM =================
 const zoomImg = document.querySelector('.image-panel img');
 
-let zoomScale = 1;
-const ZOOM_MIN = 0.5;
-const ZOOM_MAX = 3;
+if (zoomImg) {
 
-// Mouse wheel zoom (desktop)
-zoomImg.addEventListener('wheel', function (e) {
-    e.preventDefault();
+    let zoomScale = 1;
+    const ZOOM_MIN = 0.5;
+    const ZOOM_MAX = 3;
 
-    const zoomStep = e.deltaY > 0 ? -0.1 : 0.1;
-    zoomScale += zoomStep;
-    zoomScale = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, zoomScale));
+    zoomImg.addEventListener('wheel', function (e) {
+        e.preventDefault();
+        const zoomStep = e.deltaY > 0 ? -0.1 : 0.1;
+        zoomScale += zoomStep;
+        zoomScale = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, zoomScale));
+        zoomImg.style.transform = `scale(${zoomScale})`;
+    }, { passive: false });
 
-    zoomImg.style.transform = `scale(${zoomScale})`;
-}, { passive: false });
-
+}
 // Touch pinch zoom (mobile)
 let startDistance = null;
 let startScale = zoomScale;
