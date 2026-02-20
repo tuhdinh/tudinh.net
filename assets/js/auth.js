@@ -28,11 +28,24 @@ let timeoutInterval = null;
 
 // ---- PAGES ----
 const protectedPages = [
-  "index.html",
-  "projects.html",
-  "internal_nps.html",
-  "external_nps.html",
-  "contacts.html"
+"abaqusfea.html",
+"contacts.html",
+"conversion.html",
+"esprit.html",
+"externalflush.html",
+"externalwedge.html",
+"fea.html",
+"index.html",
+"internalflush.html",
+"internalwedge.html",
+"learn.html",
+"login.html",
+"noaccess.html",
+"projects.html",
+"resume.html",
+"wedge_thread_coupling.html"
+
+
 ];
 
 const currentPage = location.pathname.split("/").pop() || "index.html";
