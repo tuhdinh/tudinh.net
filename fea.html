@@ -82,6 +82,40 @@
                         <div class="plybtn"></div><iframe allowfullscreen="" frameborder="0" src="https://www.youtube.com/embed/bTdb_t3U2Jo?loop=1&amp;playlist=bTdb_t3U2Jo" width="853" height="480"></iframe>
                     </div>
                     <div class="video-container"></div>
+
+
+<div class="toggle-btn" onclick="togglePDF()">
+  <span>View Document</span>
+  <span id="arrow" class="arrow">▶</span>
+</div>
+
+<div id="pdfContainer" class="pdf-container">
+  <iframe src="assets\document\ExxonMobil Connection Evaluation Program 2nd Edition.pdf"></iframe>
+</div>
+
+<script>
+function togglePDF(){
+  const pdf = document.getElementById("pdfContainer");
+  const arrow = document.getElementById("arrow");
+
+  if(pdf.style.display === "none" || pdf.style.display === ""){
+    pdf.style.display = "block";
+    arrow.classList.add("rotate");
+  } else {
+    pdf.style.display = "none";
+    arrow.classList.remove("rotate");
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
                 </div>
             </div>
         </div>
