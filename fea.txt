@@ -1,0 +1,185 @@
+Add thermal expansion 
+MATERIAL
+•	Material → Mechanical → Expansion 
+Without this → temperature does nothing.
+Type
+👉 Select: Isotropic
+Why:
+•	P110 steel behaves essentially the same in all directions for thermal expansion 
+•	Threads don’t require orthotropic behavior unless you’re doing something very exotic 
+________________________________________
+Use user subroutine UEXPAN
+👉 Select: No
+Why:
+•	That’s only for custom expansion laws (very advanced cases) 
+•	You don’t need it unless you’re coding your own physics 
+________________________________________
+Reference temperature
+👉 Set this to: 70°F (or your assembly temperature)
+This is critical.
+It tells Abaqus:
+“At this temperature, there is zero thermal strain.”
+So:
+•	If Step 1 (make-up) is at 70°F → no expansion yet 
+•	When you go to 300°F → expansion occurs 
+If you leave this blank → Abaqus assumes 0°, which will mess up your results.
+________________________________________
+Use temperature-dependent data
+👉 Select: No (for now)
+Why:
+•	You’re applying a single temperature (300°F) 
+•	Constant expansion coefficient is perfectly fine 
+You would only check this if:
+•	α changes significantly with temperature (high-temp alloys, >500°F, etc.) 
+________________________________________
+Number of field variables
+👉 Set: 0
+Why:
+•	You’re not coupling expansion to anything else (like phase changes, etc.) 
+________________________________________
+What value do you actually enter?
+You’ll input the coefficient of thermal expansion (CTE):
+For P110 steel:
+•	6.5 × 10⁻⁶ /°F
+(if your model is in °F) 
+o	6.5 × 10⁻⁶ = 0.0000065
+OR
+•	1.17 × 10⁻⁵ /°C
+(if using Celsius) 
+________________________________________
+What this number means (intuitively)
+It’s just:
+“How much the material expands per degree of temperature increase”
+Example:
+From 70°F → 300°F:
+•	ΔT = 230°F 
+Thermal strain:
+ϵ=6.5×10−6×230≈0.0015\epsilon = 6.5 \times 10^{-6} \times 230 \approx 0.0015ϵ=6.5×10−6×230≈0.0015 
+That’s 0.15% strain, which is actually large enough to:
+•	noticeably reduce thread contact pressure 
+•	affect sealing 
+________________________________________
+Final settings (quick checklist)
+•	Type → Isotropic 
+•	UEXPAN → No 
+•	Reference temperature → 70°F 
+•	Temp-dependent → No 
+•	Field variables → 0 
+•	Expansion coefficient → 6.5e-6 /°F 
+________________________________________
+One subtle check (important for your model)
+Make sure:
+•	Your initial temperature = 70°F 
+•	Your loaded step = 300°F 
+If both are 300°F → no thermal strain happens
+
+
+PREDEFINED FIELDS
+
+1. Set the initial temperature (this is easy to miss)
+Go to:
+Predefined Field → Create → Temperature → Initial step
+•	Apply: 70°F to the whole model 
+Why this matters:
+•	This matches your reference temperature 
+•	Ensures no thermal strain during make-up
+
+For your threaded pipe + coupling model:
+👉 Select the entire model (all parts)
+Apply temperature = done
+
+Only if you want non-uniform temperature, like:
+•	Pipe = 300°F 
+•	Coupling = 200°F 
+Then you would:
+•	Apply temp to PIN sets 
+•	Apply different temp to BOX sets 
+That creates thermal mismatch (more advanced case)
+Edit Predefined Field
+
+Distribution
+👉 Select: Direct specification ✅
+Why:
+•	You’re manually defining a known temperature (not importing from another analysis)
+
+Magnitude (this is the key field)
+👉 This is simply the temperature value
+So for your setup:
+In Initial Step:
+Magnitude = 70
+In Step 2:
+Magnitude = 300
+
+What “Ramp” really means
+When you choose:
+•	Amplitude = Ramp (default) 
+it means:
+The value increases linearly from 0 → full value over the step time.
+So for your temperature:
+•	starts at 70°F (or previous state) 
+•	smoothly goes to 300°F during the step 
+________________________________________
+2. Do you need to “Create Amplitude”?
+👉 No, not for your case
+Because:
+•	Abaqus already provides Ramp by default 
+•	You only need custom amplitude if you want special time behavior 
+________________________________________
+3. What all those options mean (quick practical guide)
+You saw:
+✔ Tabular
+•	You define values vs time 
+•	Most commonly used for realistic loading 
+•	Example: temperature vs time curve 
+✔ Equally spaced
+•	Automatically distributes points 
+•	Rarely used manually 
+✔ Periodic
+•	Cyclic loading (vibration, fatigue) 
+✔ Decay
+•	Load decreases over time (relaxation type behavior) 
+✔ Smooth step ⭐
+•	Very important alternative to ramp 
+•	Even smoother than linear ramp 
+•	Better for contact convergence sometimes 
+✔ Solution dependent
+•	Advanced coupling cases (thermal-mechanical feedback) 
+✔ User
+•	You write a custom subroutine (UMAT/UEL level control) 
+✔ Spectrum / PSD / Modulated / Actuator
+•	Structural dynamics, seismic, control systems 
+•	NOT relevant for your threaded pipe problem 
+________________________________________
+4. What YOU should use
+For your case (make-up + pressure + 300°F / 350°F / 250°F):
+✔ Best choice:
+•	Ramp (default) → keep it 
+or optionally:
+•	Smooth step → if you get convergence issues 
+________________________________________
+5. When would you change amplitude?
+Only if you want to simulate real time history, like:
+•	Heating gradually over 2 hours 
+•	Pressure applied suddenly (shock) 
+•	Cooling cycle curves 
+Example:
+Time	Temp
+0	70°F
+10 min	200°F
+30 min	300°F
+That would require Tabular amplitude
+________________________________________
+6. Important concept (this is key)
+Amplitude does NOT change:
+•	material behavior 
+•	physics 
+•	temperature meaning 
+It only controls:
+“How fast the step value is applied during the increment”
+Go to:
+Step → Field Output Request
+Make sure these are included:
+•	NT = Temperature (nodal temperature) or NT11 = same temperature field (component form) 
+•	S → stress 
+•	Mises → (usually derived from S)
+
