@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Internal Wedge</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background: #f4f4f9;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            width: 95%;
+            max-width: 1600px;
+            margin: 20px auto;
+            gap: 20px;
+        }
+
+        .menus {
+            width: 25%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .panel {
+            padding: 12px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+            max-height: 32vh;
+            overflow-y: auto;
+            color: #333;
+        }
+
+        #od-panel {
+            background: #e3f2fd;
+        }
+
+        #thread-panel {
+            background: #fff3e0;
+        }
+
+        #machining-panel {
+            background: #e8f5e9;
+        }
+
+        .panel h2 {
+            margin-top: 0;
+            font-size: 1.1rem;
+            padding: 6px 8px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        #od-panel h2 {
+            background: #1e88e5;
+        }
+
+        #thread-panel h2 {
+            background: #fb8c00;
+        }
+
+        #machining-panel h2 {
+            background: #43a047;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 5px;
+            margin-top: 4px;
+            font-size: 0.95rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .image-panel {
+            width: 75%;
+            position: relative;
+            min-height: 96vh;
+        }
+
+            .image-panel img {
+                max-width: 100%;
+                max-height: 100%;
+                width: auto;
+                height: auto;
+                object-fit: contain;
+                border-radius: 10px;
+                box-shadow: 0 3px 15px rgba(0,0,0,0.2);
+                transform-origin: center center;
+                cursor: grab;
+            }
+
+        .generate-container {
+            width: 95%;
+            max-width: 1600px;
+            margin: 20px auto;
+        }
+
+        button {
+            padding: 12px;
+            font-size: 1.05rem;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 8px;
+            background-color: #1e88e5;
+            color: white;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+            button:hover {
+                background-color: #1565c0;
+            }
+
+        textarea {
+            width: 100%;
+            height: 450px;
+            padding: 12px;
+            font-size: 1rem;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            background: #fff;
+            overflow-y: scroll;
+            resize: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="menus">
+
+            <!-- PROFILE -->
+            <div class="panel" id="od-panel">
+                <h2>Profile</h2>
+                <label>Thread Diameter <input id="ThreadDiameter" type="number" step="any" value="6.5875"></label>
+                <label>Thread Diameter Length <input id="ThreadDiameterLength" type="number" step="any" value="1.785"></label>
+                <label>Thread Length <input id="ThreadLength" type="number" step="any" value="3.52"></label>
+                <label>Run Out Diameter <input id="RunOutDia" type="number" step="any" value="6.1"></label>
+                <label>Clip Length <input id="ClipLength" type="number" step="any" value="1.13"></label>
+                <label>Run In Diameter <input id="RunInDia" type="number" step="any" value="6.761"></label>
+            </div>
+
+            <!-- THREAD PROFILE -->
+            <div class="panel" id="thread-panel">
+                <h2>Thread Profile</h2>
+                <label>Lead <input id="Lead" type="number" step="any" value="0.2"></label>
+                <label>Taper <input id="Taper" type="number" step="any" value="0.094"></label>
+                <label>Thread Height <input id="ThreadHeight" type="number" step="any" value="0.054"></label>
+                <label>Thread Angle <input id="ThreadAngle" type="number" step="any" value="2.25"></label>
+            </div>
+
+            <!-- MACHINING -->
+            <div class="panel" id="machining-panel">
+                <h2>Machining</h2>
+                <label>Depth of Cut <input id="DOC" type="number" step="any" value="0.012"></label>
+                <label>Threading Start Position <input id="RunIn" type="number" step="any" value="1.0"></label>
+                <label>Clip Length Adjustment <input id="ClipLengthAdjustment" type="number" step="any" value="0.0"></label>
+                <label>Clip Diameter Adjustment <input id="ClipDiameterAdj" type="number" step="any" value="-0.007"></label>
+            </div>
+
+        </div>
+
+        <div class="image-panel">
+            <img src="INTERNALFLUSH.PNG" alt="Internal Flush">
+        </div>
+    </div>
+
+    <div class="generate-container">
+        <button onclick="generateGCode()">Generate Internal Flush Program</button>
+<textarea id="output" placeholder="G-code will appear here..."></textarea>
+    </div>
+
+    <script>
+        function readFloat(id) {
+            const el = document.getElementById(id);
+            return parseFloat(el.value) || 0;
+        }
+
+        function round4(n) { return Math.round(n * 10000) / 10000; }
+        function round5(n) { return Math.round(n * 100000) / 100000; }
+
+        function generateGCode() {
+            const THREADDIAMETER = readFloat("ThreadDiameter");
+            const THREADDIAMETERLENGTH = readFloat("ThreadDiameterLength");
+            const THREADLENGTH = readFloat("ThreadLength");
+            const THREADANGLE = readFloat("ThreadAngle");
+            const THREADHEIGHT = readFloat("ThreadHeight");
+            const LEAD = readFloat("Lead");
+            const TAPER = readFloat("Taper");
+
+            const CLIPDIAMETERADJ = readFloat("ClipDiameterAdj");
+            const DOC = readFloat("DOC");
+            const CLIPLENGTH = readFloat("ClipLength");
+            const CLIPLENGTHADJ = readFloat("ClipLengthAdjustment");
+
+            const RUNINDIA = readFloat("RunInDia");
+            let RUNOUTDIA = readFloat("RunOutDia");
+            let RUNIN = Math.round(readFloat("RunIn") * 10) / 10;
+
+            // THREAD PASSES
+            let THREADPASSES = Math.round(2 * THREADHEIGHT / DOC);
+            const THREADPASSESTEST = 2 * THREADHEIGHT / DOC;
+            if (THREADPASSES < THREADPASSESTEST) THREADPASSES++;
+
+            // THREAD CALCULATION
+            let Z1 = RUNIN;
+            let Z3 = THREADLENGTH;
+            let X1 = RUNINDIA;
+            let X2 = THREADDIAMETER + THREADHEIGHT * 2;
+
+            let Z2 = CLIPLENGTH; Z2 = round4(Z2);
+            let X3 = RUNINDIA - (THREADLENGTH - Z2) * TAPER; X3 = round4(X3);
+
+            X1 = X1 - DOC * (THREADPASSES - 1);
+            X3 = X3 - DOC * (THREADPASSES - 1);
+
+            let FLANKANGLE = Math.tan(THREADANGLE * Math.PI / 180) / 2 * DOC;
+            RUNOUTDIA = round5(RUNOUTDIA);
+
+            // CLIP CALCULATION
+            let ZCOMP = LEAD / 2 + 0.03;
+            let CLIPZ1 = round4(Z1 - ZCOMP);
+            let CLIPZ2 = round4(Math.abs(THREADDIAMETERLENGTH - ((RUNINDIA - THREADDIAMETER) / TAPER)) + CLIPDIAMETERADJ / TAPER);
+            let CLIPZ3 = round4(CLIPLENGTH + CLIPLENGTHADJ);
+            let CLIPZ4 = round4(CLIPZ3 + 0.1);
+
+            let CLIPX1 = round4(RUNINDIA);
+            let CLIPX2 = round4(RUNINDIA);
+            let CLIPX3 = round4(THREADDIAMETER + TAPER * (THREADDIAMETERLENGTH - CLIPZ3) + CLIPDIAMETERADJ);
+            let CLIPX4 = round4(CLIPX3 - 0.2);
+
+            // POSTING PROGRAM
+            let post = "%\n(NCPOST BY TU DINH)\nN3 (THREADING)\nG50 S500\nG97 S300 M3\nT0505\n";
+            post += `G00 X${round4(RUNOUTDIA)} Z1.0 M08\n`;
+
+            let LINECOUNT = 1;
+            let THREADCOUNT = THREADPASSES;
+
+            while (THREADCOUNT > 0) {
+                post += `(${LINECOUNT})\n`;
+                post += `G00 Z${round4(Z1)}\n`;
+                post += `G00 X${round4(X1)}\n`;
+                post += `G32 Z-${round4(Z2)} F${LEAD}\n`;
+                post += `G32 X${round4(X3)} Z-${round4(Z3)} F${LEAD}\n`;
+                post += `X${round4(RUNOUTDIA)}\n`;
+
+                LINECOUNT++;
+                THREADCOUNT--;
+                X1 += DOC;
+                X3 += DOC;
+                Z1 = round4(Z1 + FLANKANGLE);
+                Z3 = round4(Z3 - FLANKANGLE);
+            }
+
+            // LAST THREAD
+            X1 -= DOC; X3 -= DOC; Z1 = round4(Z1 - FLANKANGLE); Z3 = round4(Z3 + FLANKANGLE);
+            post += `(${LINECOUNT})\n`;
+            post += `G00 Z${round4(Z1)}\n`;
+            post += `G00 X${round4(X1)}\n`;
+            post += `G32 Z-${round4(Z2)} F${LEAD}\n`;
+            post += `G32 X${round4(X3)} Z-${round4(Z3)} F${LEAD}\n`;
+            post += `X${round4(RUNOUTDIA)}\nG00 Z1.0 M09\nG30 U.0 W.0\nM01\n\n`;
+
+            // CLIP
+            post += "N4 (CLIP)\nG50 S500\nG97 S300 M3\nT0505\n";
+            post += `G00 X${round4(RUNOUTDIA)} Z1.0 M08\n`;
+            post += `G00 X${round4(CLIPX1)} Z${round4(CLIPZ1)}\n`;
+
+            if (CLIPZ2 < 0) {
+                post += `G32 X${round4(CLIPX2)} Z${round4(Math.abs(CLIPZ2))} F${LEAD}\n`;
+             
+            } else {
+                post += `G32 X${round4(CLIPX2)} Z-${round4(CLIPZ2)} F${LEAD}\n`;
+            }
+
+
+
+            //post += `G32 X${round4(CLIPX2)} Z-${round4(CLIPZ2)} F${LEAD}\n`;
+            post += `G32 X${round4(CLIPX3)} Z-${round4(CLIPZ3)}\n`;
+            post += `G32 X${round4(CLIPX4)} Z-${round4(CLIPZ4)}\n`;
+            post += `G00 Z1.0 M09\nG30 U.0 W.0\nM30\n%\n`;
+
+            document.getElementById("output").value = post;
+        }
+    </script>
+</body>
+</html>

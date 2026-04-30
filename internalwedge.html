@@ -1,301 +1,451 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Internal Wedge</title>
+
+    <!-- 🔒 Prevent flash before auth check -->
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
+            display: none;
+        }
+    </style>
+
+    <!-- 🔐 Auth guard -->
+    <script type="module" src="auth.js"></script>
+    <!-- 🔑 Logout button handler -->
+    <script type="module" src="logout.js"></script>
+    <!-- Styles -->
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="../assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,600,700,800&display=swap">
+
+    <!-- Existing site styles -->
+    <link rel="stylesheet" href="../assets/css/externalnpsthread.css">
+    <link rel="stylesheet" href="../assets/css/Features-Image-icons.css">
+    <link rel="stylesheet" href="../assets/css/Features-Image-images.css">
+    <link rel="stylesheet" href="../assets/css/Wave-Animation-Circle-and-Square.css">
+
+    <!-- CUSTOM TOOL STYLES (SAFE) -->
+    <style>
+        body {
             background: #f4f4f9;
             color: #333;
         }
 
-        .container {
-            display: flex;
-            width: 95%;
-            max-width: 1600px;
-            margin: 20px auto;
-            gap: 20px;
+        /* Remove number arrows */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
         }
-
-        .menus {
-            width: 25%;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+        input[type=number] {
+            -moz-appearance: textfield;
         }
 
         .panel {
             padding: 12px;
             border-radius: 10px;
             box-shadow: 0 3px 10px rgba(0,0,0,0.15);
-            max-height: 32vh;
+            max-height: 30vh;
             overflow-y: auto;
-            color: #333;
+            margin-bottom: 15px;
         }
 
-        #od-panel {
-            background: #e3f2fd;
-        }
-
-        #thread-panel {
-            background: #fff3e0;
-        }
-
-        #machining-panel {
-            background: #e8f5e9;
-        }
+        #od-panel { background: #e3f2fd; }
+        #thread-panel { background: #fff3e0; }
+        #machining-panel { background: #e8f5e9; }
 
         .panel h2 {
-            margin-top: 0;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             padding: 6px 8px;
             border-radius: 6px;
-            margin-bottom: 10px;
             color: white;
         }
 
-        #od-panel h2 {
-            background: #1e88e5;
-        }
-
-        #thread-panel h2 {
-            background: #fb8c00;
-        }
-
-        #machining-panel h2 {
-            background: #43a047;
-        }
+        #od-panel h2 { background: #1e88e5; }
+        #thread-panel h2 { background: #fb8c00; }
+        #machining-panel h2 { background: #43a047; }
 
         label {
-            display: block;
             font-weight: bold;
-            margin-top: 8px;
+            margin-top: 6px;
+            display: block;
         }
 
         input {
             width: 100%;
             padding: 5px;
-            margin-top: 4px;
-            font-size: 0.95rem;
-            border: 1px solid #ccc;
             border-radius: 5px;
+            border: 1px solid #ccc;
         }
 
-        .image-panel {
-            width: 75%;
-            position: relative;
-            min-height: 96vh;
+        .image-panel img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.2);
+            cursor: grab;
+            touch-action: none;
+            transform-origin: center;
         }
 
-            .image-panel img {
-                max-width: 100%;
-                max-height: 100%;
-                width: auto;
-                height: auto;
-                object-fit: contain;
-                border-radius: 10px;
-                box-shadow: 0 3px 15px rgba(0,0,0,0.2);
-                transform-origin: center center;
-                cursor: grab;
-            }
-
-        .generate-container {
-            width: 95%;
-            max-width: 1600px;
-            margin: 20px auto;
-        }
-
-        button {
-            padding: 12px;
+        .generate-container button {
             font-size: 1.05rem;
-            cursor: pointer;
-            width: 100%;
-            margin-bottom: 10px;
-            border: none;
-            border-radius: 8px;
-            background-color: #1e88e5;
-            color: white;
             font-weight: bold;
-            transition: 0.2s;
         }
-
-            button:hover {
-                background-color: #1565c0;
-            }
 
         textarea {
             width: 100%;
             height: 450px;
-            padding: 12px;
-            font-size: 1rem;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            background: #fff;
-            overflow-y: scroll;
             resize: none;
         }
     </style>
 </head>
+
 <body>
 
+<!-- NAVBAR -->
+<nav class="navbar navbar-light navbar-expand-md sticky-top navbar-shrink py-3" id="mainNav">
     <div class="container">
-        <div class="menus">
 
-            <!-- PROFILE -->
-            <div class="panel" id="od-panel">
-                <h2>Profile</h2>
-                <label>Thread Diameter <input id="ThreadDiameter" type="number" step="any" value="6.5875"></label>
-                <label>Thread Diameter Length <input id="ThreadDiameterLength" type="number" step="any" value="1.785"></label>
-                <label>Thread Length <input id="ThreadLength" type="number" step="any" value="3.52"></label>
-                <label>Run Out Diameter <input id="RunOutDia" type="number" step="any" value="6.1"></label>
-                <label>Clip Length <input id="ClipLength" type="number" step="any" value="1.13"></label>
-                <label>Run In Diameter <input id="RunInDia" type="number" step="any" value="6.761"></label>
-            </div>
+        <!-- BRAND -->
+        <a class="navbar-brand d-flex align-items-center" href="../index.html">
+            <span class="bs-icon-sm bs-icon-circle bs-icon-primary shadow d-flex justify-content-center align-items-center me-2">
+                <!-- SVG ICON -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16">
+                    <!-- svg paths -->
+                </svg>
+            </span>
+            <span>Tu Dinh</span>
+        </a>
 
-            <!-- THREAD PROFILE -->
-            <div class="panel" id="thread-panel">
-                <h2>Thread Profile</h2>
-                <label>Lead <input id="Lead" type="number" step="any" value="0.2"></label>
-                <label>Taper <input id="Taper" type="number" step="any" value="0.094"></label>
-                <label>Thread Height <input id="ThreadHeight" type="number" step="any" value="0.054"></label>
-                <label>Thread Angle <input id="ThreadAngle" type="number" step="any" value="2.25"></label>
-            </div>
+        <!-- TOGGLER (ONLY ONE) -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navcol-1">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-            <!-- MACHINING -->
-            <div class="panel" id="machining-panel">
-                <h2>Machining</h2>
-                <label>Depth of Cut <input id="DOC" type="number" step="any" value="0.012"></label>
-                <label>Threading Start Position <input id="RunIn" type="number" step="any" value="1.0"></label>
-                <label>Clip Length Adjustment <input id="ClipLengthAdjustment" type="number" step="any" value="0.0"></label>
-                <label>Clip Diameter Adjustment <input id="ClipDiameterAdj" type="number" step="any" value="-0.007"></label>
-            </div>
-
+        <!-- NAV LINKS -->
+        <div class="collapse navbar-collapse" id="navcol-1">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="../learn.html">Learn</a></li>
+                <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+                <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+                <li class="nav-item"><a class="nav-link" href="../contacts.html">Contacts</a></li>
+            </ul>
+            <button class="btn btn-danger shadow" id="logoutBtn">Log Out</button>
         </div>
 
-        <div class="image-panel">
-            <img src="INTERNALFLUSH.PNG" alt="Internal Flush">
-        </div>
     </div>
+</nav>
 
-    <div class="generate-container">
-        <button onclick="generateGCode()">Generate Internal Flush Program</button>
-<textarea id="output" placeholder="G-code will appear here..."></textarea>
-    </div>
+<!-- TITLE -->
+<section class="py-4 text-center">
+    <h2 class="fw-bold">External Flush</h2>
+</section>
 
-    <script>
-        function readFloat(id) {
-            const el = document.getElementById(id);
-            return parseFloat(el.value) || 0;
-        }
+<!-- MAIN TOOL -->
+<div class="container-fluid px-4">
+    <div class="row">
 
-        function round4(n) { return Math.round(n * 10000) / 10000; }
-        function round5(n) { return Math.round(n * 100000) / 100000; }
+        <!-- LEFT CONTROLS -->
+        <div class="col-md-4">
 
-        function generateGCode() {
-            const THREADDIAMETER = readFloat("ThreadDiameter");
-            const THREADDIAMETERLENGTH = readFloat("ThreadDiameterLength");
-            const THREADLENGTH = readFloat("ThreadLength");
-            const THREADANGLE = readFloat("ThreadAngle");
-            const THREADHEIGHT = readFloat("ThreadHeight");
-            const LEAD = readFloat("Lead");
-            const TAPER = readFloat("Taper");
+<div class="panel" id="p1">
+<h2>Profile</h2>
+<label>OD<input id="OD" type="number" value="5.5"></label>
+<label>ID<input id="ID" type="number" value="4.6"></label>
+<label>OD Chamfer Angle<input id="ODCHAMFERANGLE" type="number" value="45"></label>
+<label>OD Chamfer Length<input id="ODCHAMFERLENGTH" type="number" value=".03"></label>
+<label>OD Length<input id="ODLENGTH" type="number" value="2.5"></label>
+<label>Thread Diameter<input id="THREADDIAMETER" type="number" value="4.85"></label>
+<label>Thread Diameter Length<input id="THREADDIAMETERLENGTH" type="number" value="2.2"></label>
+<label>Bevel Angle<input id="BEVELANGLE" type="number" value="45"></label>
+<label>ID Bevel Dia<input id="IDBEVEL" type="number" value="5.10"></label>
+</div>
 
-            const CLIPDIAMETERADJ = readFloat("ClipDiameterAdj");
-            const DOC = readFloat("DOC");
-            const CLIPLENGTH = readFloat("ClipLength");
-            const CLIPLENGTHADJ = readFloat("ClipLengthAdjustment");
+<div class="panel" id="p2">
+<h2>Thread</h2>
+<label>Load Taper<input id="LOADTAPER" type="number" value=".0972"></label>
+<label>Mid Taper<input id="MIDTAPER" type="number" value=".0986"></label>
+<label>Stab Taper<input id="STABTAPER" type="number" value=".1"></label>
+<label>Load Lead<input id="LOADLEAD" type="number" value=".36"></label>
+<label>Mid Lead<input id="MIDLEAD" type="number" value=".355"></label>
+<label>Stab Lead<input id="STABLEAD" type="number" value=".35"></label>
+<label>Thread Height<input id="THREADHEIGHT" type="number" value=".075"></label>
+<label>Thread Angle<input id="THREADANGLE" type="number" value="5"></label>
+<label>Insert Ref Dia<input id="INSERTREFDIA" type="number" value="4.8"></label>
+<label>Insert Ref Length<input id="INSERTREFLENGTH" type="number" value="5"></label>
+</div>
 
-            const RUNINDIA = readFloat("RunInDia");
-            let RUNOUTDIA = readFloat("RunOutDia");
-            let RUNIN = Math.round(readFloat("RunIn") * 10) / 10;
+<div class="panel" id="p3">
+<h2>Machining</h2>
+<label>ID Stock<input id="IDSTOCK" type="number" value=".01"></label>
+<label>Tool Nose Radius<input id="TNR" type="number" value=".046875"></label>
+<label>Feed<input id="FEED" type="number" value=".012"></label>
+<label>Depth of Cut<input id="DOC" type="number" value=".012"></label>
+<label>Thread Length Adj<input id="THREADLENGTHADJ" type="number" value="0"></label>
+<label>Run In Extent<input id="RUNINEXTENT" type="number" value="0"></label>
+<label>Run Out Dia<input id="RUNOUTDIA" type="number" value="5.25"></label>
+<label>Run Out Angle<input id="RUNOUTANGLE" type="number" value="45"></label>
+<label>Load Flank X Adj<input id="LOADFLANKXADJ" type="number" value="0"></label>
+<label>Mid Flank X Adj<input id="MIDFLANKXADJ" type="number" value="0"></label>
+<label>Stab Flank X Adj<input id="STABFLANKXADJ" type="number" value="0"></label>
+</div>
 
-            // THREAD PASSES
-            let THREADPASSES = Math.round(2 * THREADHEIGHT / DOC);
-            const THREADPASSESTEST = 2 * THREADHEIGHT / DOC;
-            if (THREADPASSES < THREADPASSESTEST) THREADPASSES++;
+</div>
 
-            // THREAD CALCULATION
-            let Z1 = RUNIN;
-            let Z3 = THREADLENGTH;
-            let X1 = RUNINDIA;
-            let X2 = THREADDIAMETER + THREADHEIGHT * 2;
+<div class="col-md-8 text-center">
+<img src="assets/img/drawing/internalwedge.png">
+</div>
 
-            let Z2 = CLIPLENGTH; Z2 = round4(Z2);
-            let X3 = RUNINDIA - (THREADLENGTH - Z2) * TAPER; X3 = round4(X3);
+</div>
+</div>
 
-            X1 = X1 - DOC * (THREADPASSES - 1);
-            X3 = X3 - DOC * (THREADPASSES - 1);
+<div class="container my-4">
+<button class="btn btn-primary w-100 mb-3" onclick="generateGCode()">Generate Program</button>
+<textarea id="output" class="form-control"></textarea>
+</div>
 
-            let FLANKANGLE = Math.tan(THREADANGLE * Math.PI / 180) / 2 * DOC;
-            RUNOUTDIA = round5(RUNOUTDIA);
+<script>
+document.body.style.display='block';
 
-            // CLIP CALCULATION
-            let ZCOMP = LEAD / 2 + 0.03;
-            let CLIPZ1 = round4(Z1 - ZCOMP);
-            let CLIPZ2 = round4(Math.abs(THREADDIAMETERLENGTH - ((RUNINDIA - THREADDIAMETER) / TAPER)) + CLIPDIAMETERADJ / TAPER);
-            let CLIPZ3 = round4(CLIPLENGTH + CLIPLENGTHADJ);
-            let CLIPZ4 = round4(CLIPZ3 + 0.1);
+function v(id){return parseFloat(document.getElementById(id).value)||0;}
+function n(x,d=4){return Number(x).toFixed(d).replace(/\.?0+$/,'');}
 
-            let CLIPX1 = round4(RUNINDIA);
-            let CLIPX2 = round4(RUNINDIA);
-            let CLIPX3 = round4(THREADDIAMETER + TAPER * (THREADDIAMETERLENGTH - CLIPZ3) + CLIPDIAMETERADJ);
-            let CLIPX4 = round4(CLIPX3 - 0.2);
+function generateGCode(){
 
-            // POSTING PROGRAM
-            let post = "%\n(NCPOST BY TU DINH)\nN3 (THREADING)\nG50 S500\nG97 S300 M3\nT0505\n";
-            post += `G00 X${round4(RUNOUTDIA)} Z1.0 M08\n`;
+let OD=v("OD"),ID=v("ID"),ODCR=OD+.75,IDCR=ID-.75;
+let ODCH=v("ODCHAMFERANGLE"),ODCHL=v("ODCHAMFERLENGTH"),ODLEN=v("ODLENGTH");
+let TD=v("THREADDIAMETER"),TDL=v("THREADDIAMETERLENGTH");
+let BA=v("BEVELANGLE"),IDB=v("IDBEVEL");
+let THA=v("THREADANGLE"),TH=v("THREADHEIGHT");
+let LL=v("LOADLEAD"),ML=v("MIDLEAD"),SL=v("STABLEAD");
+let LT=v("LOADTAPER"),MT=v("MIDTAPER"),ST=v("STABTAPER");
+let TLA=v("THREADLENGTHADJ"),DOC=v("DOC"),IDS=v("IDSTOCK"),TNR=v("TNR"),FEED=v("FEED");
+let IRD=v("INSERTREFDIA"),IRL=v("INSERTREFLENGTH");
+let ROD=v("RUNOUTDIA"),ROA=v("RUNOUTANGLE");
+let LFX=v("LOADFLANKXADJ"),MFX=v("MIDFLANKXADJ"),SFX=v("STABFLANKXADJ");
+let RIN=Math.round(v("RUNINEXTENT")*10)/10;
 
-            let LINECOUNT = 1;
-            let THREADCOUNT = THREADPASSES;
+if(!(BA>0&&BA<90)){alert("ANGLES MUST BE GREATER 0 AND LESS THAN 90");return;}
 
-            while (THREADCOUNT > 0) {
-                post += `(${LINECOUNT})\n`;
-                post += `G00 Z${round4(Z1)}\n`;
-                post += `G00 X${round4(X1)}\n`;
-                post += `G32 Z-${round4(Z2)} F${LEAD}\n`;
-                post += `G32 X${round4(X3)} Z-${round4(Z3)} F${LEAD}\n`;
-                post += `X${round4(RUNOUTDIA)}\n`;
+BA=Math.tan(BA*Math.PI/180)+0.005;
+let T0=TD+(ST*TDL);
 
-                LINECOUNT++;
-                THREADCOUNT--;
-                X1 += DOC;
-                X3 += DOC;
-                Z1 = round4(Z1 + FLANKANGLE);
-                Z3 = round4(Z3 - FLANKANGLE);
-            }
+let zi=0,x1=0,x2=0;
+while(true){
+zi+=0.0001;
+x1=IDB-((BA*2)*zi);
+x2=T0-(ST*zi);
+if(x1<ID){alert("CAN NOT FIND THE INTERCEPT");return;}
+if((+x1.toFixed(6)- +x2.toFixed(6))<0.0001)break;
+}
 
-            // LAST THREAD
-            X1 -= DOC; X3 -= DOC; Z1 = round4(Z1 - FLANKANGLE); Z3 = round4(Z3 + FLANKANGLE);
-            post += `(${LINECOUNT})\n`;
-            post += `G00 Z${round4(Z1)}\n`;
-            post += `G00 X${round4(X1)}\n`;
-            post += `G32 Z-${round4(Z2)} F${LEAD}\n`;
-            post += `G32 X${round4(X3)} Z-${round4(Z3)} F${LEAD}\n`;
-            post += `X${round4(RUNOUTDIA)}\nG00 Z1.0 M09\nG30 U.0 W.0\nM01\n\n`;
+let XT=BA*TNR; XT=TNR-XT;
+let ZT=XT/BA;
+let XINT=+x1.toFixed(4);
+let XWS=XINT-IDS;
+let ZWS=(IDS/(BA*2))+zi+ZT;
+let ZW=+ZWS.toFixed(4);
+let XSB=+(XWS+((ZWS+.1)*(BA*2))).toFixed(4);
+let XE=+(XWS-((IRL-ZW)*ST)).toFixed(4);
 
-            // CLIP
-            post += "N4 (CLIP)\nG50 S500\nG97 S300 M3\nT0505\n";
-            post += `G00 X${round4(RUNOUTDIA)} Z1.0 M08\n`;
-            post += `G00 X${round4(CLIPX1)} Z${round4(CLIPZ1)}\n`;
+ODCH=Math.tan((ODCH/2)*Math.PI/180);
+let ODX=2*(TNR-(TNR*ODCH));
+let ODZ=TNR-(TNR*ODCH);
+let ODS=+(OD-ODX).toFixed(4);
 
-            if (CLIPZ2 < 0) {
-                post += `G32 X${round4(CLIPX2)} Z${round4(Math.abs(CLIPZ2))} F${LEAD}\n`;
-             
-            } else {
-                post += `G32 X${round4(CLIPX2)} Z-${round4(CLIPZ2)} F${LEAD}\n`;
-            }
+ODCH=Math.tan(v("ODCHAMFERANGLE")*Math.PI/180);
+let ODZE=+(ODZ+(ODCHL*ODCH)).toFixed(4);
+
+let passes=Math.round(2*TH/DOC);
+if(passes<(2*TH/DOC))passes++;
+
+let TL=0;
+while((TL*LL)<IRL)TL++;
+TL++; TL+=RIN;
+
+let FX=IRD+TH;
+let ENDX=FX-(DOC*(passes-1));
+let ENDZ=IRL;
+
+let FA=((Math.tan(THA*Math.PI/180))/2)*DOC;
+FA=+FA.toFixed(4);
+let FZ=((passes-1)*FA)/2;
+
+let LSZ=(TL*LL)-IRL-TLA-(FZ*3);
+let LSX=+(ENDX+(LT*(TL*LL))-(TLA*LT)).toFixed(4)+LFX;
+let LEZ=ENDZ+TLA+(FZ*3);
+let LEX=+(ENDX-(TLA*LT)+LFX).toFixed(4);
+
+let MSZ=(TL*ML)-IRL-TLA-FZ;
+let MSX=+(ENDX+(MT*(TL*ML))-(TLA*MT)).toFixed(4)+MFX;
+let MEZ=ENDZ+TLA+FZ;
+let MEX=+(ENDX-(TLA*MT)+MFX).toFixed(4);
+
+let TWA=LL/(LL-SL);
+let SSZ=((TL*SL)-IRL+(TLA/TWA)-TLA)+FZ;
+let SSX=+(ENDX+(ST*(TL*SL))-(TLA*ST)).toFixed(4)+SFX;
+let SEZ=(ENDZ+TLA-(TLA/TWA))-FZ;
+let SEX=+(ENDX-((TLA+(-TLA/TWA))*ST)+SFX).toFixed(4);
+
+ROA=Math.tan((90-ROA)*Math.PI/180);
+
+let out="%\n(NCPOST BY TU DINH)\n\n";
+
+/* N1 */
+out+="N1 (OD)\nG50 S500\nG97 S300 M3\nT0101\n";
+out+="G00 X"+n(ODCR)+" Z1.0 M08\n";
+out+="Z0.0\n";
+out+="G01 X"+n(IDCR)+" F"+FEED+"\n";
+out+="G00 Z0.1\nX"+n(ODCR)+"\n";
+out+="/G71 U.1 R.1\n/G71 P100 Q101 U-0.005 W0. F"+FEED+"\n";
+out+="N100 G00 X"+n(ODS)+"\n";
+out+="G01 Z0 F"+FEED+"\n";
+out+="G01 X"+n(OD)+" Z-"+n(ODZE)+" F"+FEED+"\n";
+out+="Z-"+n(ODLEN)+"\n";
+out+="G00 X"+n(ODCR)+"\nN101 G00\n/G70 P100 Q101\n";
+out+="G00 Z1.0 M09\nG00 X15.0 Z15.0\nM01\n\n";
+
+/* N2 */
+out+="N2 (ID)\nG50 S500\nG97 S300 M3\nT0101\n";
+out+="G00 X"+n(ROD)+" Z1.0 M08\n";
+out+="G00 Z0.1\n/G71 U.1 R.1\n/G71 P200 Q201 U-0.005 W0. F"+FEED+"\n";
+out+="N200 G00 X"+n(XSB)+"\n";
+out+="G01 X"+n(XWS)+" Z-"+n(ZW)+" F"+FEED+"\n";
+out+="X"+n(XE)+" Z-"+n(IRL)+"\n";
+out+="X"+n(ROD)+"\nN201 G00\n/G70 P200 Q201\n";
+out+="G00 Z1.0 M09\nG00 X15.0 Z15.0\nM01\n\n";
+
+/* N3 */
+out+="N3 (THREADING)\nG50 S500\nG97 S300 M3\nT0505\n";
+out+="G00 X"+n(ROD)+" Z1.0 M08\n";
+
+/* LOAD */
+out+="(LOAD FLANK)\n";
+let lc=1;
+for(let i=0;i<passes;i++){
+let rz=(((LEX-ROD)/2)*ROA)+LEZ;
+out+="("+lc+")\nG00 Z"+n(LSZ)+"\nG00 X"+n(LSX)+"\n";
+out+="G32 X"+n(LEX)+" Z-"+n(LEZ)+" F"+LL+"\n";
+out+="G32 X"+n(ROD)+" Z-"+n(rz)+"\n";
+lc++;
+LSX+=DOC;LEX+=DOC;LSZ=+(LSZ+FA).toFixed(4);LEZ=+(LEZ-FA).toFixed(4);
+}
+
+/* MID */
+out+="(MID FLANK)\n";
+for(let i=0;i<passes;i++){
+let rz=(((MEX-ROD)/2)*ROA)+MEZ;
+out+="("+lc+")\nG00 Z"+n(MSZ)+"\nG00 X"+n(MSX)+"\n";
+out+="G32 X"+n(MEX)+" Z-"+n(MEZ)+" F"+ML+"\n";
+out+="G32 X"+n(ROD)+" Z-"+n(rz)+"\n";
+lc++;
+MSX+=DOC;MEX+=DOC;
+}
+
+/* STAB */
+out+="(STAB FLANK)\n";
+for(let i=0;i<passes;i++){
+let rz=(((SEX-ROD)/2)*ROA)+SEZ;
+out+="("+lc+")\nG00 Z"+n(SSZ)+"\nG00 X"+n(SSX)+"\n";
+out+="G32 X"+n(SEX)+" Z-"+n(SEZ)+" F"+SL+"\n";
+out+="G32 X"+n(ROD)+" Z-"+n(rz)+"\n";
+lc++;
+SSX+=DOC;SEX+=DOC;SSZ=+(SSZ-FA).toFixed(4);SEZ=+(SEZ+FA).toFixed(4);
+}
+
+out+="G00 Z1.0 M09\nG00 X15.0 Z15.0\nM01\n\n";
+
+/* N4 */
+out+="N4 (LASS PASSES)\nG50 S500\nG97 S300 M3\nT0505\n";
+out+="G00 X"+n(ROD)+" Z1.0 M08\n";
+
+/* load last */
+LSX-=DOC;LEX-=DOC;LSZ=+(LSZ-FA).toFixed(4);LEZ=+(LEZ+FA).toFixed(4);
+let rz=(((LEX-ROD)/2)*ROA)+LEZ;
+out+="(LOAD FLANK)\n("+lc+")\nG00 Z"+n(LSZ)+"\nG00 X"+n(LSX)+"\n";
+out+="G32 X"+n(LEX)+" Z-"+n(LEZ)+" F"+LL+"\n";
+out+="G32 X"+n(ROD)+" Z-"+n(rz)+"\n\n"; lc++;
+
+/* mid last */
+MSX-=DOC;MEX-=DOC;
+rz=(((MEX-ROD)/2)*ROA)+MEZ;
+out+="(MID FLANK)\n("+lc+")\nG00 Z"+n(MSZ)+"\nG00 X"+n(MSX)+"\n";
+out+="G32 X"+n(MEX)+" Z-"+n(MEZ)+" F"+ML+"\n";
+out+="G32 X"+n(ROD)+" Z-"+n(rz)+"\n\n"; lc++;
+
+/* stab last */
+SSX-=DOC;SEX-=DOC;SSZ=+(SSZ+FA).toFixed(4);SEZ=+(SEZ-FA).toFixed(4);
+rz=(((SEX-ROD)/2)*ROA)+SEZ;
+out+="(STAB FLANK)\n("+lc+")\nG00 Z"+n(SSZ)+"\nG00 X"+n(SSX)+"\n";
+out+="G32 X"+n(SEX)+" Z-"+n(SEZ)+" F"+SL+"\n";
+out+="G32 X"+n(ROD)+" Z-"+n(rz)+"\n";
+
+out+="\nG00 Z1.0 M09\nG00 X15.0 Z15.0\nM30\n%\n";
+
+document.getElementById("output").value=out;
+}
+
+// ================= IMAGE SCROLL / PINCH ZOOM =================
+const zoomImg = document.querySelector('.image-panel img');
+
+if (zoomImg) {
+
+    let zoomScale = 1;
+    const ZOOM_MIN = 0.5;
+    const ZOOM_MAX = 3;
+
+    zoomImg.addEventListener('wheel', function (e) {
+        e.preventDefault();
+        const zoomStep = e.deltaY > 0 ? -0.1 : 0.1;
+        zoomScale += zoomStep;
+        zoomScale = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, zoomScale));
+        zoomImg.style.transform = `scale(${zoomScale})`;
+    }, { passive: false });
+
+}
+// Touch pinch zoom (mobile)
+let startDistance = null;
+let startScale = zoomScale;
+
+zoomImg.addEventListener('touchstart', function (e) {
+    if (e.touches.length === 2) {
+        startDistance = getTouchDistance(e.touches);
+        startScale = zoomScale;
+    }
+}, { passive: false });
+
+zoomImg.addEventListener('touchmove', function (e) {
+    if (e.touches.length === 2 && startDistance) {
+        e.preventDefault();
+
+        const currentDistance = getTouchDistance(e.touches);
+        zoomScale = startScale * (currentDistance / startDistance);
+        zoomScale = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, zoomScale));
+
+        zoomImg.style.transform = `scale(${zoomScale})`;
+    }
+}, { passive: false });
+
+zoomImg.addEventListener('touchend', function () {
+    startDistance = null;
+});
+
+// Helper function
+function getTouchDistance(touches) {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.hypot(dx, dy);
+}
+
+</script>
+
+<script src="assets/js/jquery.min.js"></script>
+<script src="../assets/bootstrap/js/bootstrap.min.js"></script>
 
 
-
-            //post += `G32 X${round4(CLIPX2)} Z-${round4(CLIPZ2)} F${LEAD}\n`;
-            post += `G32 X${round4(CLIPX3)} Z-${round4(CLIPZ3)}\n`;
-            post += `G32 X${round4(CLIPX4)} Z-${round4(CLIPZ4)}\n`;
-            post += `G00 Z1.0 M09\nG30 U.0 W.0\nM30\n%\n`;
-
-            document.getElementById("output").value = post;
-        }
-    </script>
 </body>
 </html>
