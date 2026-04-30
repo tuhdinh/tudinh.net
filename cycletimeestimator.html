@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<title>Cycle Time Estimator</title>
+
+<style>
+body {
+    font-family: Consolas, monospace;
+    background: #0e0e0e;
+    color: #ddd;
+    padding: 20px;
+}
+
+textarea {
+    width: 100%;
+    height: 260px;
+    background: #1b1b1b;
+    color: #00ff88;
+    border: 1px solid #333;
+    padding: 10px;
+    font-family: Consolas;
+}
+
+button {
+    margin-top: 10px;
+    padding: 10px;
+}
+
+.blockTitle {
+    margin-top: 20px;
+    color: #ffcc00;
+    font-weight: bold;
+}
+
+.line {
+    display: grid;
+    grid-template-columns: 1fr 120px;
+    gap: 20px;
+    white-space: pre;
+    padding: 2px 0;
+}
+
+.code {
+    overflow: hidden;
+}
+
+.time {
+    text-align: right;
+    color: #ff5555;
+}
+
+.total {
+    margin-top: 15px;
+    font-size: 18px;
+    color: #ffffff;
+}
+
+.g00 { color: #66b3ff; }
+.g01 { color: #7CFC00; }
+.g32 { color: #ffcc00; }
+.cycle { color: #ffcc00; font-weight: bold; }
+
+</style>
+
+</head>
+
+<body>
+
+<h2>Cycle Time Estimator</h2>
+
+<textarea id="gcode"></textarea><br>
+
+<button onclick="run()">Calculate</button>
+
+<div id="output"></div>
+<div class="total" id="total"></div>
+
+
+
+<script>
+
+function format(sec) {
+    sec = Math.max(0, sec);
+    let h = Math.floor(sec / 3600);
+    let m = Math.floor((sec % 3600) / 60);
+    let s = (sec % 60).toFixed(2);
+    return `${h}h ${m}m ${s}s`;
+}
+
+// correct lathe time model
+function moveTime(dist, mode, feed, rpm) {
+
+    if(dist <= 0.0001) return 0;
+
+    if(mode === "G00") return 0;
+
+    let feedPerMin = feed * rpm;
+
+    if(feedPerMin <= 0) return 0;
+
+    return (dist / feedPerMin) * 60;
+}
+
+function run() {
+
+    let lines = document.getElementById("gcode").value.split("\n");
+
+    let blocks = {};
+    let current = "MAIN";
+
+    // init default block
+    blocks[current] = {
+        x: 0,
+        z: 0,
+        mode: "G00",
+        feed: 0,
+        rpm: 300,
+        time: 0,
+        output: ""
+    };
+
+    for(let line of lines) {
+
+        let raw = line.trim().toUpperCase();
+        if(raw === "") continue;
+
+        // detect block
+        if(raw.startsWith("N")) {
+            current = raw.split(" ")[0];
+
+            if(!blocks[current]) {
+                blocks[current] = {
+                    x: 0,
+                    z: 0,
+                    mode: "G00",
+                    feed: 0,
+                    rpm: 300,
+                    time: 0,
+                    output: ""
+                };
+            }
+
+            blocks[current].output += `<div class="blockTitle">${raw}</div>`;
+            continue;
+        }
+
+        let b = blocks[current];
+
+        // spindle
+        let s = raw.match(/S([0-9]+)/);
+        if(s) b.rpm = parseFloat(s[1]);
+
+        // feed
+        let f = raw.match(/F([0-9]*\.?[0-9]+)/);
+        if(f) b.feed = parseFloat(f[1]);
+
+        // mode
+        if(raw.includes("G00")) b.mode = "G00";
+        if(raw.includes("G01")) b.mode = "G01";
+        if(raw.includes("G32")) b.mode = "G32";
+
+        let xM = raw.match(/X([-+]?[0-9]*\.?[0-9]+)/);
+        let zM = raw.match(/Z([-+]?[0-9]*\.?[0-9]+)/);
+
+        let nx = xM ? parseFloat(xM[1]) : b.x;
+        let nz = zM ? parseFloat(zM[1]) : b.z;
+
+        let dx = Math.abs(nx - b.x);
+        let dz = Math.abs(nz - b.z);
+        let dist = dx + dz;
+
+        let sec = moveTime(dist, b.mode, b.feed, b.rpm);
+
+        b.time += sec;
+
+        let show = sec > 0.01 ? sec.toFixed(2) + "s" : "";
+
+        b.output += `
+<div class="line ${b.mode.toLowerCase()}">
+<div class="code">${raw}</div>
+<div class="time">${show}</div>
+</div>`;
+
+        b.x = nx;
+        b.z = nz;
+    }
+
+    let total = 0;
+    let out = "";
+
+    for(let k in blocks) {
+        total += blocks[k].time;
+        out += blocks[k].output;
+    }
+
+    document.getElementById("output").innerHTML = out;
+    document.getElementById("total").innerHTML =
+        "TOTAL CYCLE TIME: " + format(total);
+}
+
+</script>
+
+</body>
+</html>
