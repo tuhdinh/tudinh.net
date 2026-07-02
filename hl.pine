@@ -1,0 +1,101 @@
+//@version=5
+indicator("High/Low Swing Points + Buy/Sell Probability", overlay=true, max_labels_count=500)
+
+// =========================================================
+// INPUTS
+// =========================================================
+grpSwing = "Swing High / Low Labels"
+pivotLen        = input.int(5, "Pivot Lookback (bars)", minval=1, group=grpSwing)
+showSwingLabels = input.bool(true, "Show HIGH / LOW Labels", group=grpSwing)
+
+grpTrend = "Trend Bands (like the white/red lines)"
+fastLen    = input.int(20, "Fast EMA Length", group=grpTrend)
+slowLen    = input.int(90, "Slow EMA Length", group=grpTrend)
+showBands  = input.bool(true, "Show EMA Trend Bands", group=grpTrend)
+
+grpProb = "Buy / Sell Probability Score"
+rsiLen        = input.int(14, "RSI Length", group=grpProb)
+volLen        = input.int(20, "Volume MA Length", group=grpProb)
+showTable     = input.bool(true, "Show Probability Table", group=grpProb)
+strongLevel   = input.int(70, "Strong Signal Threshold (%)", minval=50, maxval=95, group=grpProb)
+
+// =========================================================
+// TREND BANDS
+// =========================================================
+emaFast = ta.ema(close, fastLen)
+emaSlow = ta.ema(close, slowLen)
+
+plot(showBands ? emaFast : na, color=color.white, linewidth=2, title="Fast EMA")
+plot(showBands ? emaSlow : na, color=color.red,   linewidth=2, title="Slow EMA")
+
+// =========================================================
+// SWING HIGH / LOW DETECTION
+// =========================================================
+ph = ta.pivothigh(high, pivotLen, pivotLen)
+pl = ta.pivotlow(low, pivotLen, pivotLen)
+
+atrVal = ta.atr(14)
+
+if showSwingLabels and not na(ph)
+    label.new(bar_index[pivotLen], ph,
+        text = "HIGH " + str.tostring(math.round((ph - low[pivotLen]) / atrVal * 10) / 10),
+        style = label.style_label_down,
+        color = color.new(color.orange, 0),
+        textcolor = color.black,
+        size = size.small)
+
+if showSwingLabels and not na(pl)
+    label.new(bar_index[pivotLen], pl,
+        text = "LOW " + str.tostring(math.round((high[pivotLen] - pl) / atrVal * 10) / 10),
+        style = label.style_label_up,
+        color = color.new(color.yellow, 0),
+        textcolor = color.black,
+        size = size.small)
+
+// =========================================================
+// BUY / SELL PROBABILITY SCORE (heuristic composite, 0-100%)
+// =========================================================
+rsiVal = ta.rsi(close, rsiLen)
+[macdLine, signalLine, histLine] = ta.macd(close, 12, 26, 9)
+volMA = ta.sma(volume, volLen)
+
+// Trend component: price vs EMA ribbon
+trendScoreRaw = close > emaFast and emaFast > emaSlow ? 1.0 :
+                close < emaFast and emaFast < emaSlow ? -1.0 :
+                (close - emaSlow) / emaSlow * 20
+trendScore = math.max(-1.0, math.min(1.0, trendScoreRaw))
+
+// Momentum component: RSI centered at 50
+rsiScore = (rsiVal - 50) / 50
+
+// MACD histogram component, normalized by ATR
+macdScoreRaw = histLine / atrVal
+macdScore = math.max(-1.0, math.min(1.0, macdScoreRaw))
+
+// Volume confirmation component
+volScore = volume > volMA and close > open ? 0.5 :
+           volume > volMA and close < open ? -0.5 : 0.0
+
+// Weighted composite
+totalScoreRaw = (trendScore * 0.35) + (rsiScore * 0.25) + (macdScore * 0.25) + (volScore * 0.15)
+totalScore = math.max(-1.0, math.min(1.0, totalScoreRaw))
+
+buyPct  = math.round((totalScore + 1) / 2 * 100)
+sellPct = 100 - buyPct
+
+// =========================================================
+// PROBABILITY TABLE
+// =========================================================
+var table probTable = table.new(position.top_right, 2, 2, border_width=1)
+
+if showTable
+    table.cell(probTable, 0, 0, "BUY",  bgcolor=color.new(color.green, 0), text_color=color.white, text_size=size.normal)
+    table.cell(probTable, 1, 0, "SELL", bgcolor=color.new(color.red, 0),   text_color=color.white, text_size=size.normal)
+    table.cell(probTable, 0, 1, str.tostring(buyPct)  + "%", bgcolor=color.new(color.green, 40), text_color=color.white, text_size=size.large)
+    table.cell(probTable, 1, 1, str.tostring(sellPct) + "%", bgcolor=color.new(color.red, 40),   text_color=color.white, text_size=size.large)
+
+// =========================================================
+// ALERTS
+// =========================================================
+alertcondition(buyPct  >= strongLevel, title="Strong Buy Signal",  message="Buy probability crossed strong threshold")
+alertcondition(sellPct >= strongLevel, title="Strong Sell Signal", message="Sell probability crossed strong threshold")
